@@ -3,7 +3,7 @@ from pymongo import MongoClient
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
-
+import pandas as pd
 
 
 def log(message):
@@ -12,6 +12,11 @@ def log(message):
 			f.write(f'{datetime.now()} '+ f' {message}\n')
 		except:
 			print('error al guardar el log')
+
+def amongo(db, film):
+	post = db.insert_one(film)
+	print(post)
+
 
 def save_to_csv(pelicula):
 
@@ -35,8 +40,8 @@ def peticion(url):
 		return None
 
 
-def pelis_ingesta():
-
+def pelis_ingesta(db):
+	j = 0
 	pelicula = []
 	url = "https://www.blogdepelis.top/"
 	response = peticion(url)
@@ -69,34 +74,29 @@ def pelis_ingesta():
 					for num in react:
 						num = num.get_text()
 						emo.append(num)
-
-
 					if len(scr) == 0:
 						scr = soup4.find_all('p')[1]
 						comentario = scr.get_text()
 					else:
 						comentario = scr[-1].get_text().split('\n')[0]
-					titulo = nombre[:-6]
-					c = cate.get_text()
-					ano = nombre[-5:-1]
-					like = emo[0]
-					dislike = emo[1]
-					love = emo[2]
-					shit = emo[3]
-					#pelicula.append([titulo, ano, c, comentario])
-					#print(pelicula[len(pelicula)-1])
+
+
 					film = {
-						"titulo": titulo,
-						'ano' : ano,
-						'cat' : c,
-						'like': like,
-						'dislike': dislike,
-						'love': love,
-						'shit': shit,
+						'_id': j,
+						'titulo': nombre[:-6],
+						'ano' : nombre[-5:-1],
+						'categoria' : cate.get_text(),
+						'like': emo[0],
+						'dislike': emo[1],
+						'love': emo[2],
+						'shit': emo[3],
 						'comentario' : comentario
 					}
-					save_to_csv([titulo, ano, c, like, dislike, love, shit, comentario])
-					yield film
+					#save_to_csv([titulo, ano, c, like, dislike, love, shit, comentario])
+					print(film)
+					amongo(db, film)
+					j+=1
+
 
 	#return pelicula
 
@@ -113,4 +113,5 @@ mg = MongoClient("localhost", 27017)
 
 apidb = mg.IDD['api']
 pelidb = mg.IDD['blog']
-mg.IDD.blog.insert_one(pelis_ingesta())
+
+pelis_ingesta(pelidb)
