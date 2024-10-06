@@ -1,3 +1,15 @@
+
+
+"""
+
+Para usar este codigo en cmd o Powershell vamos a la carpeta del proyecto
+y ejecutamos 'pip install -r requirements.txt' esto instalara las dependencias
+despues solo hay que ejecutar python IDD-mine.py o arrancarlo en cualquier editor
+
+"""
+
+
+
 from pymongo import MongoClient
 import requests
 from bs4 import BeautifulSoup
