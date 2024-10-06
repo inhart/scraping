@@ -1,15 +1,15 @@
-
 from pymongo import MongoClient
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
 
-def peticion(url):
-	response = requests.get(url)
+def peticion(url, params=None):
+	response = requests.get(url, params=params)
 	if response.status_code == 200:
 		return response
 	else:
 		log('Request error: ' + str(response.status_code))
+		return None
 
 def log(message):
 	with open('log.txt','a') as f:
@@ -25,6 +25,11 @@ def amongo(db, film):
 def incr():
 	global j
 	j+=1
+
+def apide():
+	global k
+	k+=1
+
 
 
 def filmscrapy(enlace, name, cat, db, feat):
@@ -54,9 +59,14 @@ def filmscrapy(enlace, name, cat, db, feat):
 		'link': enlace,
 		'comentario': comentario
 	}
-	amongo(db, film)
+	try:
+		amongo(db, film)
+	except Exception as e:
+
+		print(f'error al insertar {e}')
+
 	incr()
-	print(film['_id'])
+	#print(film['_id'])
 
 
 def correpaginas(db, enlace, cate, feat='html.parser'):
@@ -93,34 +103,50 @@ def pelis_ingesta(db, feat):
 				catgry = cate.get_text()
 				correpaginas(db, link, catgry, feat)
 
+def api_ingesta(db):
+	base_url = "https://api.euskadi.eus/culture/events/v1.0/events/"
+	opt = {
+		'_elements' : 1,
+		'_page' : 1,
+		'type': 9
+	}
+	response = peticion(base_url, params=opt)
+	if response != None:
+		data = response.json()
 
-def save_to_csv(pelicula):
+		tot = data['totalPages']
+		for i in range(1, tot + 1):
+			opt['_page'] = f'{i}'
+			response = peticion(base_url, params=opt)
+			if response != None:
+				data = response.json()
+				item = data['items'][0]
+				item['_id'] = k
+				try:
+					amongo(db, item)
+				except Exception as e:
+					print(f'{e}')
 
-	with open('peliculas.csv', 'a', encoding='utf-8') as f:
-		for dato in pelicula:
-			try:
-				if pelicula.index(dato) == (len(pelicula)-1):
-					f.write('"' + f'{dato}' + '"' + '\n')
-				else:
-					f.write(f'{dato},')
-			except Exception() as e:
-				print('error en el csv')
-				print(e)
+			apide()
 
 
-def api_ingesta():
-	return " "
+
 
 def main():
 	# Conecta a MongoDB
 	mg = MongoClient("localhost", 27017)
 	feat = 'html.parser'
 	pelidb = mg.IDD['blog']
+	apidb = mg.IDD['api']
+
+	api_ingesta(apidb)
 
 	pelis_ingesta(pelidb, feat)
 
+
 if __name__ == '__main__':
 
+	k=0
 	j=0
 
 	main()
