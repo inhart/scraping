@@ -19,7 +19,7 @@ def save_to_csv(pelicula):
 		for dato in pelicula:
 			try:
 				if pelicula.index(dato) == (len(pelicula)-1):
-					f.write(dato.encode('ascii') + '\n')
+					f.write('"' + f'{dato}' + '"' + '\n')
 				else:
 					f.write(f'{dato},')
 			except:
@@ -64,6 +64,13 @@ def pelis_ingesta():
 					peli = peticion(link4)
 					soup4 = BeautifulSoup(peli.content,'html.parser')
 					scr = soup4.find_all('div','separator')
+					react = soup4.find_all('span', "count-num")
+					emo = []
+					for num in react:
+						num = num.get_text()
+						emo.append(num)
+
+
 					if len(scr) == 0:
 						scr = soup4.find_all('p')[1]
 						comentario = scr.get_text()
@@ -72,11 +79,26 @@ def pelis_ingesta():
 					titulo = nombre[:-6]
 					c = cate.get_text()
 					ano = nombre[-5:-1]
-
+					like = emo[0]
+					dislike = emo[1]
+					love = emo[2]
+					shit = emo[3]
 					#pelicula.append([titulo, ano, c, comentario])
 					#print(pelicula[len(pelicula)-1])
-					save_to_csv([titulo, ano, c, comentario])
-	return pelicula
+					film = {
+						"titulo": titulo,
+						'ano' : ano,
+						'cat' : c,
+						'like': like,
+						'dislike': dislike,
+						'love': love,
+						'shit': shit,
+						'comentario' : comentario
+					}
+					save_to_csv([titulo, ano, c, like, dislike, love, shit, comentario])
+					yield film
+
+	#return pelicula
 
 
 
@@ -90,6 +112,5 @@ def api_ingesta():
 mg = MongoClient("localhost", 27017)
 
 apidb = mg.IDD['api']
-pelidb = mg.IDD['peliculas']
-
-peliculas = pelis_ingesta()
+pelidb = mg.IDD['blog']
+mg.IDD.blog.insert_one(pelis_ingesta())
