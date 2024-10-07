@@ -41,9 +41,9 @@ def log(message):
 
 
 
-def amongo(db, film):
+def amongo(daba, film):
 	#Funcion para insertar en la base de datos
-	post = db.insert_one(film)
+	post = daba.insert_one(film)
 	return post
 
 
@@ -62,7 +62,7 @@ def apide():
 
 
 
-def filmscrapy(enlace, name, cat, db):
+def filmscrapy(enlace, name, cat):
 	# Esta funcion recorre la pagina de la peli y extrae los datos
 	peli = peticion(enlace)
 	soup4 = BeautifulSoup(peli.content, feat)
@@ -92,7 +92,7 @@ def filmscrapy(enlace, name, cat, db):
 	}
 	#insertamos
 	try:
-		amongo(db, film)
+		amongo(db_blog, film)
 	except Exception as e:
 		print(f'error al insertar {e}')
 	#cntador
@@ -100,7 +100,7 @@ def filmscrapy(enlace, name, cat, db):
 
 
 
-def correpaginas(db, enlace, cate):
+def correpaginas(enlace, cate):
 	# esta funcion recorre las todas las paginas de la categoria
 	response3 = peticion(enlace)
 	soup3 = BeautifulSoup(response3.content, feat)
@@ -109,12 +109,12 @@ def correpaginas(db, enlace, cate):
 		# Para cada pelicula de la pagina
 		nombre = a.find('a')['title']
 		link = a.find('a')['href']
-		filmscrapy(link, nombre, cate, db)
+		filmscrapy(link, nombre, cate)
 
 
 
 
-def pelis_ingesta(db):
+def pelis_ingesta():
 	# Esta funcion realiza la primera conexion a la pagina y extrae las categorias
 	url = "https://www.blogdepelis.top/"
 	response = peticion(url)
@@ -136,11 +136,11 @@ def pelis_ingesta(db):
 				# Para cada pagina en la categoria
 				link = f'{newlink}/page/{i}'
 				catgry = cate.get_text()
-				correpaginas(db, link, catgry)
+				correpaginas( link, catgry)
 
 
 
-def api_ingesta(db):
+def api_ingesta():
 	#Esta funcion hace una primera llamada a la api
 	# para obtener el total de paginas o eventos
 	# ya que vamos a seleccionar un evento por pagina
@@ -168,7 +168,7 @@ def api_ingesta(db):
 				item['_id'] = k
 				# insertamos en la base de datos
 				try:
-					amongo(db, item)
+					amongo(api_db, item)
 				except Exception as e:
 					print(f'{e}')
 			#incrementamos el contador
@@ -178,7 +178,18 @@ def api_ingesta(db):
 
 
 def main():
-	# Conecta a MongoDB
+
+	# comienza el proceso
+	api_ingesta()
+	pelis_ingesta()
+
+
+if __name__ == '__main__':
+#inicializams las variables globales
+	k=0
+	j=0
+	feat = 'html.parser'
+# Conecta a MongoDB
 	mg = MongoClient("localhost", 27017)
 
 	# MONGODB
@@ -191,17 +202,6 @@ def main():
 	#
 	# crea la base de datos y las dos colecciones que usaremos
 	db = mg.IDD
-
-	pelidb = db['blog']
-	apidb = db['api']
-	# comienza el proceso
-	api_ingesta(apidb)
-	pelis_ingesta(pelidb)
-
-
-if __name__ == '__main__':
-#inicializams las variables globales
-	k=0
-	j=0
-	feat = 'html.parser'
+	db_blog = db['blog']
+	api_db = db['api']
 	main()
