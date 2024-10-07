@@ -180,8 +180,8 @@ def api_ingesta(db):
 def main():
 	# Conecta a MongoDB
 	mg = MongoClient("localhost", 27017)
-	# crea la base de datos y las dos colecciones que usaremos
-    # MONGODB
+
+	# MONGODB
 	#   |
 	#	|
 	#  IDD ( Base de datos )---'blog' ( Coleccion )
@@ -189,12 +189,12 @@ def main():
 	#	|
 	#'api' ( Coleccion )
 	#
-
+	# crea la base de datos y las dos colecciones que usaremos
 	db = mg.IDD
 
 	pelidb = db['blog']
 	apidb = db['api']
-# comienza el proceso
+	# comienza el proceso
 	api_ingesta(apidb)
 	pelis_ingesta(pelidb)
 
