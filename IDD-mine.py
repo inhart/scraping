@@ -148,11 +148,12 @@ def api_ingesta(db):
 	opt = {
 		'_elements' : 1,
 		'_page' : 1,
+		# tipo de evento "9 Audiovisuales y Cine"
 		'type': 9
 	}
 	response = peticion(base_url, params=opt)
 	#nos aseguramos de que la peticion se hizo exitosamente
-	if response != None:
+	if response is not None:
 		#pasamos el json de la respuesta
 		data = response.json()
 		# contamos los eventos que tendremos que atravesar
@@ -160,7 +161,7 @@ def api_ingesta(db):
 		for i in range(1, tot + 1):
 			opt['_page'] = f'{i}'
 			response = peticion(base_url, params=opt)
-			if response != None:
+			if response is not None:
 				data = response.json()
 				item = data['items'][0]
 				# generamos un id unico para cada entrada
@@ -188,7 +189,9 @@ def main():
 	#	|
 	#'api' ( Coleccion )
 	#
+
 	db = mg.IDD
+
 	pelidb = db['blog']
 	apidb = db['api']
 # comienza el proceso
