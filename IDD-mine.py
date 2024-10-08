@@ -7,14 +7,12 @@ y ejecutamos 'pip install -r requirements.txt' esto instalara las dependencias
 despues solo hay que ejecutar python IDD-mine.py o arrancarlo en cualquier editor
 
 """
-
-
-
+from jupyter_core.version import match
 from pymongo import MongoClient
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
-
+import re
 
 
 
@@ -27,6 +25,7 @@ def peticion(url, params=None):
 		return response
 	else:
 		log('Request error: ' + str(response.status_code))
+		print('Request error: ' + str(response.status_code))
 		return None
 
 
@@ -74,9 +73,9 @@ def filmscrapy(enlace, name, cat):
 		emo.append(num)
 	if len(scr) == 0:
 		scr = soup4.find_all('p')[1]
-		comentario = scr.get_text()
+		sinopsis = scr.get_text()
 	else:
-		comentario = scr[-1].get_text().split('\n')[0]
+		sinopsis = scr[-1].get_text().split('\n')[0]
 
 	film = {
 		'_id': j,
@@ -88,7 +87,7 @@ def filmscrapy(enlace, name, cat):
 		'love': emo[2],
 		'shit': emo[3],
 		'link': enlace,
-		'comentario': comentario
+		'sinopsis': sinopsis
 	}
 	#insertamos
 	try:
@@ -96,6 +95,7 @@ def filmscrapy(enlace, name, cat):
 	except Exception as e:
 		print(f'error al insertar {e}')
 	#cntador
+	print(str(film))
 	incr()
 
 
@@ -136,8 +136,49 @@ def pelis_ingesta():
 				# Para cada pagina en la categoria
 				link = f'{newlink}/page/{i}'
 				catgry = cate.get_text()
-				correpaginas( link, catgry)
+				# esta funcion recorre las todas las paginas de la categoria
+				response3 = peticion(link)
+				soup3 = BeautifulSoup(response3.content, feat)
+				ases = soup3.find_all('div', 'latestPost-inner')
+				for a in ases:
+					# Para cada pelicula de la pagina
+					nombre = a.find('a')['title']
+					link = a.find('a')['href']
+					# Esta funcion recorre la pagina de la peli y extrae los datos
+					peli = peticion(link)
+					soup4 = BeautifulSoup(peli.content, feat)
+					scr = soup4.find_all('div', 'separator')
+					react = soup4.find_all('span', "count-num")
+					emo = []
+					for num in react:
+						num = num.get_text()
+						emo.append(num)
+					if len(scr) == 0:
+						scr = soup4.find_all('p')[1]
+						sinopsis = scr.get_text()
+					else:
+						sinopsis = scr[-1].get_text().split('\n')[0]
 
+					film = {
+						'_id': j,
+						'titulo': nombre[:-7],
+						'year': nombre[-5:-1],
+						'categoria': catgry,
+						'like': emo[0],
+						'dislike': emo[1],
+						'love': emo[2],
+						'shit': emo[3],
+						'link': link,
+						'sinopsis': sinopsis
+					}
+					# insertamos
+					try:
+						amongo(db_blog, film)
+					except Exception as e:
+						print(f'error al insertar {e}')
+					# cntador
+					# print(str(film))
+					incr()
 
 
 def api_ingesta():
@@ -165,16 +206,26 @@ def api_ingesta():
 				data = response.json()
 				item = data['items'][0]
 				# generamos un id unico para cada entrada
+				del item['id']
+
 				item['_id'] = k
+
 				# insertamos en la base de datos
 				try:
+					#print(str(item))
 					amongo(api_db, item)
 				except Exception as e:
 					print(f'{e}')
 			#incrementamos el contador
 			apide()
 
-
+def limpiar_coleccion(elem):
+	# PH  Eliminar los valores duplicados por el bilinguismo
+	# limpiar_coleccion(api_db)
+	for item in elem.find_all({}):
+		for atom in item:
+			if re.match("\*Eu", item[atom]):
+				item[atom].drop()
 
 
 def main():
@@ -182,6 +233,7 @@ def main():
 	# comienza el proceso
 	api_ingesta()
 	pelis_ingesta()
+
 
 
 if __name__ == '__main__':
@@ -192,9 +244,6 @@ if __name__ == '__main__':
 # Conecta a MongoDB
 	mg = MongoClient("localhost", 27017)
 
-	# MONGODB
-	#   |
-	#	|
 	#  IDD ( Base de datos )---'blog' ( Coleccion )
 	#	|
 	#	|
