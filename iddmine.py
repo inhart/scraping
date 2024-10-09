@@ -60,60 +60,6 @@ def apide():
 	k+=1
 
 
-
-def filmscrapy(enlace, name, cat):
-	# Esta funcion recorre la pagina de la peli y extrae los datos
-	peli = peticion(enlace)
-	soup4 = BeautifulSoup(peli.content, feat)
-	scr = soup4.find_all('div', 'separator')
-	react = soup4.find_all('span', "count-num")
-	emo = []
-	for num in react:
-		num = num.get_text()
-		emo.append(num)
-	if len(scr) == 0:
-		scr = soup4.find_all('p')[1]
-		sinopsis = scr.get_text()
-	else:
-		sinopsis = scr[-1].get_text().split('\n')[0]
-
-	film = {
-		'_id': j,
-		'titulo': name[:-7],
-		'year': name[-5:-1],
-		'categoria': cat,
-		'like': emo[0],
-		'dislike': emo[1],
-		'love': emo[2],
-		'shit': emo[3],
-		'link': enlace,
-		'sinopsis': sinopsis
-	}
-	#insertamos
-	try:
-		amongo(db_blog, film)
-	except Exception as e:
-		print(f'error al insertar {e}')
-	#cntador
-	print(str(film))
-	incr()
-
-
-
-def correpaginas(enlace, cate):
-	# esta funcion recorre las todas las paginas de la categoria
-	response3 = peticion(enlace)
-	soup3 = BeautifulSoup(response3.content, feat)
-	ases = soup3.find_all('div', 'latestPost-inner')
-	for a in ases:
-		# Para cada pelicula de la pagina
-		nombre = a.find('a')['title']
-		link = a.find('a')['href']
-		filmscrapy(link, nombre, cate)
-
-
-
-
 def pelis_ingesta():
 	# Esta funcion realiza la primera conexion a la pagina y extrae las categorias
 	url = "https://www.blogdepelis.top/"
@@ -265,8 +211,8 @@ def limpiar_coleccion(elem):
 def main():
 
 	# comienza el proceso
-	#api_ingesta()
-	#pelis_ingesta()
+	api_ingesta()
+	pelis_ingesta()
 
 	limpiar_coleccion(db_blog)
 
