@@ -1,0 +1,291 @@
+
+
+"""
+
+Para usar este codigo en cmd o Powershell vamos a la carpeta del proyecto
+y ejecutamos 'pip install -r requirements.txt' esto instalara las dependencias
+despues solo hay que ejecutar python IDD-mine.py o arrancarlo en cualquier editor
+
+"""
+from jupyter_core.version import match
+from pymongo import MongoClient
+import requests
+from bs4 import BeautifulSoup
+from datetime import datetime
+import re
+import sys ; sys.setrecursionlimit(sys.getrecursionlimit() * 500)
+
+
+
+def peticion(url, params=None):
+	#Realiza la peticion de la pagina web y devuelve la respuesta en caso de respuesta exitosa
+	# retorna none en caso de error
+	response = requests.get(url, params=params)
+	if response.status_code == 200:
+		return response
+	else:
+		log('Request error: ' + str(response.status_code))
+		print('Request error: ' + str(response.status_code))
+		return None
+
+
+
+def log(message):
+	#Funcion para estructurar el log
+	with open('log.txt','a') as f:
+		try:
+			f.write(f'{datetime.now()} '+ f' {message}\n')
+		except Exception() as e:
+			print(f'error al guardar el log {e}')
+
+
+
+def amongo(daba, film):
+	#Funcion para insertar en la base de datos
+	post = daba.insert_one(film)
+	return post
+
+
+
+def incr():
+	#Setter de contadores
+	global j
+	j+=1
+
+
+
+def apide():
+	# Setter de contadores
+	global k
+	k+=1
+
+
+
+def filmscrapy(enlace, name, cat):
+	# Esta funcion recorre la pagina de la peli y extrae los datos
+	peli = peticion(enlace)
+	soup4 = BeautifulSoup(peli.content, feat)
+	scr = soup4.find_all('div', 'separator')
+	react = soup4.find_all('span', "count-num")
+	emo = []
+	for num in react:
+		num = num.get_text()
+		emo.append(num)
+	if len(scr) == 0:
+		scr = soup4.find_all('p')[1]
+		sinopsis = scr.get_text()
+	else:
+		sinopsis = scr[-1].get_text().split('\n')[0]
+
+	film = {
+		'_id': j,
+		'titulo': name[:-7],
+		'year': name[-5:-1],
+		'categoria': cat,
+		'like': emo[0],
+		'dislike': emo[1],
+		'love': emo[2],
+		'shit': emo[3],
+		'link': enlace,
+		'sinopsis': sinopsis
+	}
+	#insertamos
+	try:
+		amongo(db_blog, film)
+	except Exception as e:
+		print(f'error al insertar {e}')
+	#cntador
+	print(str(film))
+	incr()
+
+
+
+def correpaginas(enlace, cate):
+	# esta funcion recorre las todas las paginas de la categoria
+	response3 = peticion(enlace)
+	soup3 = BeautifulSoup(response3.content, feat)
+	ases = soup3.find_all('div', 'latestPost-inner')
+	for a in ases:
+		# Para cada pelicula de la pagina
+		nombre = a.find('a')['title']
+		link = a.find('a')['href']
+		filmscrapy(link, nombre, cate)
+
+
+
+
+def pelis_ingesta():
+	# Esta funcion realiza la primera conexion a la pagina y extrae las categorias
+	url = "https://www.blogdepelis.top/"
+	response = peticion(url)
+	soup = BeautifulSoup(response.content, feat)
+	# extraemos las categorias de la sopa
+	cat = soup.find_all('a')
+	for cate in cat:
+		#recorremos las categorias
+		if "category" in cate['href']:
+			# Este link es una categoria
+			newlink = cate['href']
+			response2 = peticion(newlink)
+			soup2 = BeautifulSoup(response2.content, feat)
+			# extraemos la cantidad de paginas que tiene cada categoria
+			pagen = soup2.find_all('a', 'page-numbers')
+			pagen = int(pagen[-2].get_text())
+			# Y las recorremos
+			for i in range(1,pagen):
+				# Para cada pagina en la categoria
+				link = f'{newlink}/page/{i}'
+				catgry = cate.get_text()
+				# esta funcion recorre las todas las paginas de la categoria
+				response3 = peticion(link)
+				soup3 = BeautifulSoup(response3.content, feat)
+				ases = soup3.find_all('div', 'latestPost-inner')
+				for a in ases:
+					# Para cada pelicula de la pagina
+					nombre = a.find('a')['title']
+					link = a.find('a')['href']
+					# Esta funcion recorre la pagina de la peli y extrae los datos
+					peli = peticion(link)
+					soup4 = BeautifulSoup(peli.content, feat)
+					scr = soup4.find_all('div', 'separator')
+					react = soup4.find_all('span', "count-num")
+					emo = []
+					for num in react:
+						num = num.get_text()
+						emo.append(num)
+					if len(scr) == 0:
+						scr = soup4.find_all('p')[1]
+						sinopsis = scr.get_text()
+					else:
+						sinopsis = scr[-1].get_text().split('\n')[0]
+
+					film = {
+						'_id': j,
+						'titulo': nombre[:-7],
+						'year': nombre[-5:-1],
+						'categoria': catgry,
+						'like': emo[0],
+						'dislike': emo[1],
+						'love': emo[2],
+						'shit': emo[3],
+						'link': link,
+						'sinopsis': sinopsis
+					}
+					# insertamos
+					try:
+						amongo(db_blog, film)
+					except Exception as e:
+						print(f'error al insertar {e}')
+					# cntador
+					# print(str(film))
+					incr()
+
+
+def api_ingesta():
+	#Esta funcion hace una primera llamada a la api
+	# para obtener el total de paginas o eventos
+	# ya que vamos a seleccionar un evento por pagina
+	base_url = "https://api.euskadi.eus/culture/events/v1.0/events/"
+	opt = {
+		'_elements' : 1,
+		'_page' : 1,
+		# tipo de evento "9 Audiovisuales y Cine"
+		'type': 9
+	}
+	response = peticion(base_url, params=opt)
+	#nos aseguramos de que la peticion se hizo exitosamente
+	if response is not None:
+		#pasamos el json de la respuesta
+		data = response.json()
+		# contamos los eventos que tendremos que atravesar
+		tot = data['totalPages']
+		for i in range(1, tot + 1):
+			opt['_page'] = f'{i}'
+			response = peticion(base_url, params=opt)
+			if response is not None:
+				data = response.json()
+				item = data['items'][0]
+				# generamos un id unico para cada entrada
+				del item['id']
+
+				item['_id'] = k
+
+				# insertamos en la base de datos
+				try:
+					#print(str(item))
+					amongo(api_db, item)
+				except Exception as e:
+					print(f'{e}')
+			#incrementamos el contador
+			apide()
+
+def limpiar_coleccion(elem):
+	# localiza los elementos duplicados, los combina en un solo elemento,
+	# uniendo los campos de categoria y guarda el elemento resultante en la db
+
+	elem.aggregate(
+		[
+			{
+				'$group': {
+					'_id': {
+						'titulo': '$titulo',
+						'link': '$link'
+					},
+					'uniqueId': {
+						'$first': '$_id'
+					},
+					'categoria': {
+						'$addToSet': '$categoria'
+					},
+					'love': {
+						'$first': '$love'
+					},
+					'year': {
+						'$first': '$year'
+					},
+					'like': {
+						'$first': '$like'
+					},
+					'shit': {
+						'$first': '$shit'
+					},
+					'dislike': {
+						'$first': '$dislike'
+					},
+					'sinopsis': {
+						'$first': '$sinopsis'
+					}
+				}
+			}, {
+			'$out': 'blog'
+		}
+		]
+	)
+
+def main():
+
+	# comienza el proceso
+	#api_ingesta()
+	#pelis_ingesta()
+
+	limpiar_coleccion(db_blog)
+
+
+if __name__ == '__main__':
+#inicializams las variables globales
+	k=0
+	j=0
+	feat = 'html.parser'
+# Conecta a MongoDB
+	mg = MongoClient("localhost", 27017)
+
+	#  IDD ( Base de datos )---'blog' ( Coleccion )
+	#	|
+	#	|
+	#'api' ( Coleccion )
+	#
+	# crea la base de datos y las dos colecciones que usaremos
+	db = mg.IDD
+	db_blog = db['blog']
+	api_db = db['api']
+	main()
