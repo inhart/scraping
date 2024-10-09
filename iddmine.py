@@ -274,7 +274,7 @@ def main():
 
 if __name__ == '__main__':
 	#################################################
-	#inicializams las variables globales  			#
+	#Inicializams las variables globales  			#
     #se que no hace falta iniciarlizarlas en python #
     #pero es una practica que conservo con cariño	#
 	#################################################
@@ -301,4 +301,9 @@ if __name__ == '__main__':
 	db = mg.IDD
 	db_blog = db['blog']
 	api_db = db['api']
+
+	############################################################
+	# Empieza la magia (No es hironico que empiece al final? :)#
+	############################################################
+
 	main()
