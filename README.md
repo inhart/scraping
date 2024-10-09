@@ -6,33 +6,6 @@
 Ingesta de datos
 
 Inhart de Orube
-Index
-Descripción General	3
-Requisitos Previos	3
-Estructura del Proyecto	4
-Base de Datos MongoDB	4
-Detalles de Implementación	4
- - MongoDB:	4
- - Librerías utilizadas:	4
- - 'requests':	4
- - 'BeautifulSoup':	4
- - 'pymongo':	5
- - 'datetime':	5
-Funcionalidades y Estructura del Código	5
- 1. peticion(url, params=None):	5
- 2. log(message):	5
- 3. amongo(daba, film):	5
- 4. pelis_ingesta():	6
-5. api_ingesta():	6
-6. limpiar_coleccion(elem):	6
-7. main():	6
-Ejecución del Proyecto	7
-1. Instalación de dependencias:	7
-2. Ejecución del código:	7
-Recursividad y Manejo de Errores	8
-Posibles Mejoras	8
-Conclusión	8
-
 
 
 Descripción General
