@@ -20,7 +20,7 @@
 
 
 	- Python 3.x: El proyecto está desarrollado en Python, por lo que se requiere una versión moderna del lenguaje.
-	-MongoDB: El sistema debe tener un servidor MongoDB corriendo en 'localhost' en el puerto '27017'.
+	- MongoDB: El sistema debe tener un servidor MongoDB corriendo en 'localhost' en el puerto '27017'.
 	- Bibliotecas Python: Las dependencias necesarias se encuentran en el archivo ‘requirements.txt’. Para instalarlas, ejecuta:
   	
 
