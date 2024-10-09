@@ -168,7 +168,7 @@ def pelis_ingesta():
 
 
 	######################################################
-	#Esta funcion hace una primera llamada a la api      #
+	# Esta funcion hace una primera llamada a la api     #
 	# para obtener el total de paginas o eventos         #
 	# ya que vamos a seleccionar un evento por pagina    #
 	######################################################
