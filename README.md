@@ -40,50 +40,60 @@
 
 ### Detalles de Implementación
 
-	- MongoDB:
+
+#### MongoDB:
 
 	El proyecto utiliza MongoDB para almacenar los datos recolectados. Se conecta a un servidor MongoDB local en 'localhost:27017'.
 	
-	- Librerías utilizadas:
 
-	- 'requests':
-		Para realizar peticiones HTTP tanto en el scraping web como en las llamadas a la API.
-	- 'BeautifulSoup':
-		Para parsear y extraer datos de las páginas HTML durante el scraping.
-	- 'pymongo':
-		Para la interacción con MongoDB.
-	- 'datetime':
-		Para registrar fechas y horas en los logs.
+#### Librerías utilizadas:
 
+##### - 'requests':
+
+	Para realizar peticiones HTTP tanto en el scraping web como en las llamadas a la API.
+
+##### - 'BeautifulSoup':
+
+	Para parsear y extraer datos de las páginas HTML durante el scraping.
+
+##### - 'pymongo':
+
+	Para la interacción con MongoDB.
+
+##### -'datetime':
+
+	Para registrar fechas y horas en los logs.
+
+	
 ### Funcionalidades y Estructura del Código
 
 
 ##### 1. peticion(url, params=None):
 
-Realiza una solicitud 'GET' a la URL especificada.
-   - Si la respuesta es exitosa ('status_code = 200'), retorna el contenido; de lo contrario, se registra el error en el archivo 'log.txt'.
+	Realiza una solicitud 'GET' a la URL especificada.
+	- Si la respuesta es exitosa ('status_code = 200'), retorna el contenido; de lo contrario, se registra el error en el archivo 'log.txt'.
 
 ##### - 2. log(message):
 
-- Escribe mensajes de log en el archivo 'log.txt' para documentar errores y eventos.
+	- Escribe mensajes de log en el archivo 'log.txt' para documentar errores y eventos.
 
 ##### 3. amongo(daba, film):
 
-- Inserta un documento ('film') en la colección MongoDB especificada ('daba').
+	- Inserta un documento ('film') en la colección MongoDB especificada ('daba').
 
 
 
 ##### 4. pelis_ingesta()
 
-- Realiza la conexión inicial con la página principal del blog para extraer las categorías de películas disponibles para navegar y extraer los datos de cada categoría.   
-- Realiza scraping de una página de película específica para extraer datos como el título, año, categoría, reacciones (likes, dislikes, etc.), sinopsis y enlace.
-- Navega por todas las páginas de una categoría específica del blog de películas y extrae la información de cada película.
-- Inserta los datos extraídos en la colección 'blog'.
+	- Realiza la conexión inicial con la página principal del blog para extraer las categorías de películas disponibles para navegar y extraer los datos de cada categoría.   
+	- Realiza scraping de una página de película específica para extraer datos como el título, año, categoría, reacciones (likes, dislikes, etc.), sinopsis y enlace.
+	- Navega por todas las páginas de una categoría específica del blog de películas y extrae la información de cada película.
+	- Inserta los datos extraídos en la colección 'blog'.
 
 ##### 5. api_ingesta():
 
-   - Realiza solicitudes a la API de eventos culturales y almacena la información en la colección 'api' de MongoDB.
-   - Extrae información como el tipo de evento y el total de páginas, y recorre cada evento para almacenarlo en la base de datos.
+	- Realiza solicitudes a la API de eventos culturales y almacena la información en la colección 'api' de MongoDB.
+	- Extrae información como el tipo de evento y el total de páginas, y recorre cada evento para almacenarlo en la base de datos.
 
 ##### 6. limpiar_coleccion(elem):
 
@@ -96,7 +106,7 @@ Realiza una solicitud 'GET' a la URL especificada.
 
 ### Ejecución del Proyecto
 
-Para ejecutar el proyecto, sigue los siguientes pasos:
+	Para ejecutar el proyecto, sigue los siguientes pasos:
 
 #### 1. Instalación de dependencias:
 
@@ -106,7 +116,7 @@ Para ejecutar el proyecto, sigue los siguientes pasos:
   
    `python iddmine.py`
    
-   Alternativamente, el archivo puede ejecutarse desde un editor de Python compatible.
+	Alternativamente, el archivo puede ejecutarse desde un editor de Python compatible.
 
 
 ### Recursividad y Manejo de Errores
