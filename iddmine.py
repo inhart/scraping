@@ -229,11 +229,8 @@ def limpiar_coleccion(elem):
 		[
 			{
 				'$group': {
+
 					'_id': {
-						'titulo': '$titulo',
-						'link': '$link'
-					},
-					'uniqueId': {
 						'$first': '$_id'
 					},
 					'categoria': {
