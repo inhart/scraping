@@ -31,6 +31,7 @@ def peticion(url, params=None, max_retries=3, base_wait_time=2):
 			response = requests.get(url, params=params, timeout=10)
 
 			if response.status_code == 200:
+				log(f'Peticion exitosa para URL {url} en el intento {retries +1}')
 				return response
 			else:
 				log(f'HTTP error: {response.status_code} en {url}')
