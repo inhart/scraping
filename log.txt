@@ -1,0 +1,6 @@
+2024-10-10 15:31:49.102010  Error: HTTPSConnectionPool(host='www.blogdepelis.top', port=443): Read timed out. (read timeout=10) en intento 1 para URL: https://www.blogdepelis.top/cuentos-del-cazador-de-sombras.html
+2024-10-10 15:32:01.187822  Error: HTTPSConnectionPool(host='www.blogdepelis.top', port=443): Read timed out. (read timeout=10) en intento 2 para URL: https://www.blogdepelis.top/cuentos-del-cazador-de-sombras.html
+2024-10-10 15:32:27.428205  Error: HTTPSConnectionPool(host='www.blogdepelis.top', port=443): Read timed out. (read timeout=10) en intento 1 para URL: https://www.blogdepelis.top/pearl-harbor.html
+2024-10-10 15:36:49.663862  Error: HTTPSConnectionPool(host='www.blogdepelis.top', port=443): Read timed out. (read timeout=10) en intento 1 para URL: https://www.blogdepelis.top/mickey-salva-la-navidad.html
+2024-10-10 15:37:01.739459  Error: HTTPSConnectionPool(host='www.blogdepelis.top', port=443): Read timed out. (read timeout=10) en intento 2 para URL: https://www.blogdepelis.top/mickey-salva-la-navidad.html
+2024-10-10 15:37:34.723319  Error: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')) en intento 1 para URL: https://www.blogdepelis.top/entergalactic.html
