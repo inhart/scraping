@@ -26,7 +26,7 @@ def log(message):
 def peticion(url, params=None, max_retries=3, base_wait_time=2):
 	retries = 0
 
-	while retries < max_retries:
+	while retries <= max_retries:
 		try:
 			response = requests.get(url, params=params, timeout=10)
 
