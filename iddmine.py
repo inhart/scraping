@@ -307,7 +307,7 @@ if __name__ == '__main__':
 	api_db = db['api']
 
 	############################################################
-	# Empieza la magia (No es hironico que empiece al final? :)#
+	# Empieza la magia (No es ironico que empiece al final? :)#
 	############################################################
 
 	main()
