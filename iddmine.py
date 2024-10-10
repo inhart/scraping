@@ -23,12 +23,12 @@ def log(message):
 	# Gestiona las peticiones a las paginas #
 	#########################################
 
-def peticion(url, params=None, max_retries=3, base_wait_time=2):
+def peticion(url, params=None, max_retries=3, base_wait_time=5):
 	retries = 0
 
 	while retries <= max_retries:
 		try:
-			response = requests.get(url, params=params, timeout=10)
+			response = requests.get(url, params=params, timeout=30)
 
 			if response.status_code == 200:
 				if retries > 0:
