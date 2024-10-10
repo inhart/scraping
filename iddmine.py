@@ -238,7 +238,6 @@ def limpiar_coleccion(elem):
 					'link':{
 						'$first': '$link'
 					},
-
 					'categoria': {
 						'$addToSet': '$categoria'
 					},
