@@ -23,7 +23,7 @@ def log(message):
 	# Gestiona las peticiones a las paginas #
 	#########################################
 
-def peticion(url, params=None, max_retries=3, base_wait_time=5):
+def peticion(url, params=None, max_retries=3, base_wait_time=10):
 	retries = 0
 
 	while retries <= max_retries:
@@ -207,6 +207,19 @@ def api_ingesta():
 				# generamos un id unico para cada entrada  #
 				############################################
 				del item['id']
+				#############################################
+				# Limpiamos las entradas en euskera         #
+				#############################################
+				keyname = ['typeEu','nameEu','openingHoursEu','sourceNameEu','sourceUrlEu','priceEu',
+				'purchaseUrlEu', 'descriptionEu', 'municipalityEu', 'establishmentEu', 'urlEventEu', 'urlNameEu']
+				for atom in keyname:
+					try:
+						del item[atom]
+					except Exception as e:
+						log(f'error {e} al borrar la entrada {keyname}')
+						continue
+
+
 				item['_id'] = k
 				###################################
 				# insertamos en la base de datos  #
@@ -230,34 +243,34 @@ def limpiar_coleccion(elem):
 			{
 				'$group': {
 					'_id': {
-						'$first': '$_id'
+						first: '$_id'
 					},
 					'titulo': {
-						'$first': '$titulo',
+						first: '$titulo',
 					},
 					'link':{
-						'$first': '$link'
+						first: '$link'
 					},
 					'categoria': {
 						'$addToSet': '$categoria'
 					},
 					'love': {
-						'$first': '$love'
+						first: '$love'
 					},
 					'year': {
-						'$first': '$year'
+						first: '$year'
 					},
 					'like': {
-						'$first': '$like'
+						first: '$like'
 					},
 					'shit': {
-						'$first': '$shit'
+						first: '$shit'
 					},
 					'dislike': {
-						'$first': '$dislike'
+						first: '$dislike'
 					},
 					'sinopsis': {
-						'$first': '$sinopsis'
+						first: '$sinopsis'
 					}
 				}
 			}, {
@@ -286,7 +299,7 @@ if __name__ == '__main__':
 	k=0
 	j=0
 	feat = 'html.parser'
-
+	first = '$first'
 	######################
 	# Conecta a MongoDB  #
 	######################
