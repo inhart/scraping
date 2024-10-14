@@ -137,6 +137,9 @@ def pelis_ingesta():
 						for num in react:
 							num = num.get_text()
 							emo.append(num)
+						#############################################
+						# adaptacion a la variabilidad de la pagina #
+						#############################################
 						if len(scr) == 0:
 							scr = soup4.find_all('p')[1]
 							sinopsis = scr.get_text()
