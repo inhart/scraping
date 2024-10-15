@@ -27,7 +27,7 @@ def peticion(url, params=None, max_retries=3, base_wait_time=30):
 
 	while retries <= max_retries:
 		try:
-			response = requests.get(url, params=params, timeout=30)
+			response = requests.get(url, params=params, timeout=10)
 
 			if response.status_code == 200:
 				if retries > 0:
