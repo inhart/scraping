@@ -6,7 +6,6 @@ from datetime import datetime
 import time
 import sys ; sys.setrecursionlimit(sys.getrecursionlimit() * 500000)
 
-
 	###################################
 	#Funcion para estructurar el log  #
 	###################################
