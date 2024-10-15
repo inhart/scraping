@@ -214,8 +214,11 @@ def api_ingesta():
 				#############################################
 				# Limpiamos las entradas en euskera         #
 				#############################################
-				keyname = ['typeEu','nameEu','openingHoursEu','sourceNameEu','sourceUrlEu','priceEu',
-				'purchaseUrlEu', 'descriptionEu', 'municipalityEu', 'establishmentEu', 'urlEventEu', 'urlNameEu']
+				keyname = ['typeEu','nameEu','openingHoursEu',
+						   'sourceNameEu','sourceUrlEu','priceEu',
+							'purchaseUrlEu', 'descriptionEu',
+						   'municipalityEu', 'establishmentEu',
+						   'urlEventEu', 'urlNameEu']
 				for atom in keyname:
 					try:
 						del item[atom]
@@ -287,9 +290,9 @@ def main():
 	########################
 	# comienza el proceso  #
 	########################
-	api_ingesta()
-	pelis_ingesta()
 
+	pelis_ingesta()
+	api_ingesta()
 	#limpiar_coleccion(db_blog)
 
 
