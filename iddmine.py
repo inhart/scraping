@@ -145,7 +145,7 @@ def pelis_ingesta():
 								sinopsis = scr.get_text()
 							else:
 								sinopsis = scr[-1].get_text().split('\n')[0]
-							if '(+18)' in nombre:
+							if f'(+18)' in nombre:
 								a=-7
 								b=-11
 								c=-13
