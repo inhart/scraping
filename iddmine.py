@@ -165,7 +165,7 @@ def pelis_ingesta():
 								'love': emo[2],
 								'shit': emo[3],
 								'link': link2,
-								'+18' : age,
+								'pegi' : age,
 								'sinopsis': sinopsis
 							}
 							#######################
