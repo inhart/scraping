@@ -23,7 +23,7 @@ def log(message):
 	# Gestiona las peticiones a las paginas #
 	#########################################
 
-def peticion(url, params=None, max_retries=3, base_wait_time=10):
+def peticion(url, params=None, max_retries=3, base_wait_time=30):
 	retries = 0
 
 	while retries <= max_retries:
@@ -130,46 +130,47 @@ def pelis_ingesta():
 						# Esta funcion recorre la pagina de la peli y extrae los datos  #
 						#################################################################
 						peli = peticion(link)
-						soup4 = BeautifulSoup(peli.content, feat)
-						scr = soup4.find_all('div', 'separator')
-						react = soup4.find_all('span', "count-num")
-						emo = []
-						for num in react:
-							num = num.get_text()
-							emo.append(num)
-						#############################################
-						# adaptacion a la variabilidad de la pagina #
-						#############################################
-						if len(scr) == 0:
-							scr = soup4.find_all('p')[1]
-							sinopsis = scr.get_text()
-						else:
-							sinopsis = scr[-1].get_text().split('\n')[0]
+						if peli is not None:
+							soup4 = BeautifulSoup(peli.content, feat)
+							scr = soup4.find_all('div', 'separator')
+							react = soup4.find_all('span', "count-num")
+							emo = []
+							for num in react:
+								num = num.get_text()
+								emo.append(num)
+							#############################################
+							# adaptacion a la variabilidad de la pagina #
+							#############################################
+							if len(scr) == 0:
+								scr = soup4.find_all('p')[1]
+								sinopsis = scr.get_text()
+							else:
+								sinopsis = scr[-1].get_text().split('\n')[0]
 
-						film = {
-							'_id': j,
-							'titulo': nombre[:-7],
-							'year': nombre[-5:-1],
-							'categoria': catgry,
-							'like': emo[0],
-							'dislike': emo[1],
-							'love': emo[2],
-							'shit': emo[3],
-							'link': link,
-							'sinopsis': sinopsis
-						}
-						#######################
-						# Insertamos en mongo #
-						#######################
-						try:
-							amongo(db_blog, film)
-						except Exception as e:
-							print(f'error al insertar {e}')
-							log(f'error al insertar\n {e}')
-						###########################
-						# contador incrementar    #
-						###########################
-						incr()
+							film = {
+								'_id': j,
+								'titulo': nombre[:-7],
+								'year': nombre[-5:-1],
+								'categoria': catgry,
+								'like': emo[0],
+								'dislike': emo[1],
+								'love': emo[2],
+								'shit': emo[3],
+								'link': link,
+								'sinopsis': sinopsis
+							}
+							#######################
+							# Insertamos en mongo #
+							#######################
+							try:
+								amongo(db_blog, film)
+							except Exception as e:
+								print(f'error al insertar {e}')
+								log(f'error al insertar\n {e}')
+							###########################
+							# contador incrementar    #
+							###########################
+							incr()
 
 
 	######################################################
@@ -289,7 +290,7 @@ def main():
 	api_ingesta()
 	pelis_ingesta()
 
-	limpiar_coleccion(db_blog)
+	#limpiar_coleccion(db_blog)
 
 
 if __name__ == '__main__':
@@ -318,7 +319,7 @@ if __name__ == '__main__':
 	# crea la base de datos y las dos colecciones que usaremos        #
 	###################################################################
 
-	db = mg.IDD
+	db = mg.idd_bck
 	db_blog = db['blog']
 	api_db = db['api']
 
