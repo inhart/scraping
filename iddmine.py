@@ -319,7 +319,7 @@ if __name__ == '__main__':
 	# crea la base de datos y las dos colecciones que usaremos        #
 	###################################################################
 
-	db = mg.idd_bck
+	db = mg.idd
 	db_blog = db['blog']
 	api_db = db['api']
 
