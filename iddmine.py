@@ -145,17 +145,27 @@ def pelis_ingesta():
 								sinopsis = scr.get_text()
 							else:
 								sinopsis = scr[-1].get_text().split('\n')[0]
-
+							if '(+18)' in nombre:
+								a=-7
+								b=-11
+								c=-13
+								age = True
+							else:
+								a=-1
+								b=-5
+								c=-7
+								age = False
 							film = {
 								'_id': j,
-								'titulo': nombre[:-7],
-								'year': nombre[-5:-1],
+								'titulo': nombre[:c],
+								'year': nombre[b:a],
 								'categoria': catgry,
 								'like': emo[0],
 								'dislike': emo[1],
 								'love': emo[2],
 								'shit': emo[3],
 								'link': link2,
+								'+18' : age,
 								'sinopsis': sinopsis
 							}
 							#######################
