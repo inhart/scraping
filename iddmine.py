@@ -112,12 +112,12 @@ def pelis_ingesta():
 					#####################################
 					# Para cada pagina en la categoria  #
 					#####################################
-					link = f'{newlink}/page/{i}'
+					link1 = f'{newlink}/page/{i}'
 					catgry = cate.get_text()
 					###################################################
 					# recorre las todas las paginas de la categoria   #
 					###################################################
-					response3 = peticion(link)
+					response3 = peticion(link1)
 					soup3 = BeautifulSoup(response3.content, feat)
 					ases = soup3.find_all('div', 'latestPost-inner')
 					for a in ases:
@@ -125,11 +125,11 @@ def pelis_ingesta():
 						# Para cada pelicula de la pagina  #
 						####################################
 						nombre = a.find('a')['title']
-						link = a.find('a')['href']
+						link2 = a.find('a')['href']
 						#################################################################
 						# Esta funcion recorre la pagina de la peli y extrae los datos  #
 						#################################################################
-						peli = peticion(link)
+						peli = peticion(link2)
 						if peli is not None:
 							soup4 = BeautifulSoup(peli.content, feat)
 							scr = soup4.find_all('div', 'separator')
@@ -156,7 +156,7 @@ def pelis_ingesta():
 								'dislike': emo[1],
 								'love': emo[2],
 								'shit': emo[3],
-								'link': link,
+								'link': link2,
 								'sinopsis': sinopsis
 							}
 							#######################
