@@ -15,12 +15,12 @@ El proyecto se centra en la ingesta y procesamiento de datos de
 	con dos fuentes principales:
 
 
-	1. Un blog de películas (scraping web).
+1. Un blog de películas (scraping web).
 
-	2. Una API pública que proporciona información sobre eventos 
-	audiovisuales y cinematográficos. El código está organizado para 
-	ejecutar estos procesos de ingesta y almacenarlos en dos 
-	colecciones separadas dentro de MongoDB: 'blog' y 'api'.
+2. Una API pública que proporciona información sobre eventos 
+audiovisuales y cinematográficos. El código está organizado para 
+ejecutar estos procesos de ingesta y almacenarlos en dos 
+colecciones separadas dentro de MongoDB: 'blog' y 'api'.
 
 ### Requisitos Previos
 
