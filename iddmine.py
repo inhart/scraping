@@ -88,10 +88,14 @@ def pelis_ingesta():
 		# extraemos las categorias de la sopa    #
 		##########################################
 		cat = soup.find_all('a')
-		for cate in cat:
-			#############################
-			#recorremos las categorias  #
-			#############################
+
+		#############################
+		# recorremos las categorias  #
+		#############################################################################################
+		# como los links de categoria salen varias veces nos aseguramos de recorrerlas solo una vez #
+		#############################################################################################
+		for cate in cat[0:18]:
+
 			if "category" in cate['href']:
 				###############################
 				# Este link es una categoria  #
