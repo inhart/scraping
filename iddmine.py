@@ -1,26 +1,25 @@
-
 from pymongo import MongoClient
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
 import time
-import sys ; sys.setrecursionlimit(sys.getrecursionlimit() * 500000)
 
-	###################################
-	#Funcion para estructurar el log  #
-	###################################
+
+###################################
+#Funcion para estructurar el log  #
+###################################
 
 def log(message):
-	with open('log.txt','a') as f:
+	with open('log.txt', 'a') as f:
 		try:
-			f.write(f'{datetime.now()} '+ f' {message}\n')
+			f.write(f'{datetime.now()} ' + f' {message}\n')
 		except Exception() as e:
 			print(f'error al guardar el log {e}')
 
 
-	#########################################
-	# Gestiona las peticiones a las paginas #
-	#########################################
+#########################################
+# Gestiona las peticiones a las paginas #
+#########################################
 
 def peticion(url, params=None, max_retries=3, base_wait_time=30):
 	retries = 0
@@ -31,7 +30,7 @@ def peticion(url, params=None, max_retries=3, base_wait_time=30):
 
 			if response.status_code == 200:
 				if retries > 0:
-					log(f'Peticion exitosa para URL {url} en el intento {retries +1}')
+					log(f'Peticion exitosa para URL {url} en el intento {retries + 1}')
 				return response
 			else:
 				log(f'HTTP error: {response.status_code} en {url}')
@@ -52,35 +51,34 @@ def peticion(url, params=None, max_retries=3, base_wait_time=30):
 	return None
 
 
-	############################################
-	#Funcion para insertar en la base de datos #
-	############################################
+############################################
+#Funcion para insertar en la base de datos #
+############################################
 def amongo(daba, film):
 	post = daba.insert_one(film)
 	return post
 
-	#########################
-	#Setter de contadores	#
-	#########################
+
+#########################
+#Setter de contadores	#
+#########################
 def incr():
 	global j
-	j+=1
+	j += 1
 
-	########################
-	# Setter de contadores #
-	########################
+
+########################
+# Setter de contadores #
+########################
 def apide():
 	global k
-	k+=1
+	k += 1
 
 
-
-	#################################################################################
-	## Esta funcion realiza la primera conexion a la pagina y extrae las categorias #
-	#################################################################################
-def pelis_ingesta():
-
-	url = "https://www.blogdepelis.top/"
+#################################################################################
+## Esta funcion realiza la primera conexion a la pagina y extrae las categorias #
+#################################################################################
+def pelis_ingesta(url="https://www.blogdepelis.top/"):
 	response = peticion(url)
 	if response is not None:
 		soup = BeautifulSoup(response.content, feat)
@@ -96,7 +94,6 @@ def pelis_ingesta():
 		#############################################################################################
 		cat_list = []
 		for cate in cat:
-
 
 			if "category" in cate['href']:
 				if cate.get_text() not in cat_list:
@@ -115,7 +112,7 @@ def pelis_ingesta():
 					#######################
 					# Y las recorremos    #
 					#######################
-					for i in range(1,pagen):
+					for i in range(1, pagen):
 						#####################################
 						# Para cada pagina en la categoria  #
 						#####################################
@@ -154,14 +151,14 @@ def pelis_ingesta():
 								else:
 									sinopsis = scr[-1].get_text().split('\n')[0]
 								if f'(+18)' in nombre:
-									a=-7
-									b=-11
-									c=-13
+									a = -7
+									b = -11
+									c = -13
 									age = True
 								else:
-									a=-1
-									b=-5
-									c=-7
+									a = -1
+									b = -5
+									c = -7
 									age = False
 								film = {
 									'_id': j,
@@ -173,7 +170,7 @@ def pelis_ingesta():
 									'love': emo[2],
 									'shit': emo[3],
 									'link': link2,
-									'pegi' : age,
+									'pegi': age,
 									'sinopsis': sinopsis
 								}
 								#######################
@@ -190,16 +187,16 @@ def pelis_ingesta():
 								incr()
 
 
-	######################################################
-	# Esta funcion hace una primera llamada a la api     #
-	# para obtener el total de paginas o eventos         #
-	# ya que vamos a seleccionar un evento por pagina    #
-	######################################################
+######################################################
+# Esta funcion hace una primera llamada a la api     #
+# para obtener el total de paginas o eventos         #
+# ya que vamos a seleccionar un evento por pagina    #
+######################################################
 def api_ingesta():
 	base_url = "https://api.euskadi.eus/culture/events/v1.0/events/"
 	opt = {
-		'_elements' : 1,
-		'_page' : 1,
+		'_elements': 1,
+		'_page': 1,
 		###########################################
 		# tipo de evento "9 Audiovisuales y Cine" #
 		###########################################
@@ -231,18 +228,17 @@ def api_ingesta():
 				#############################################
 				# Limpiamos las entradas en euskera         #
 				#############################################
-				keyname = ['typeEu','nameEu','openingHoursEu',
-						   'sourceNameEu','sourceUrlEu','priceEu',
-							'purchaseUrlEu', 'descriptionEu',
+				keyname = ['typeEu', 'nameEu', 'openingHoursEu',
+						   'sourceNameEu', 'sourceUrlEu', 'priceEu',
+						   'purchaseUrlEu', 'descriptionEu',
 						   'municipalityEu', 'establishmentEu',
 						   'urlEventEu', 'urlNameEu']
 				for atom in keyname:
 					try:
 						del item[atom]
 					except Exception as e:
-						log(f'error {e} al borrar la entrada {keyname}')
+						#log(f'error {e} al borrar la entrada {keyname}')
 						continue
-
 
 				item['_id'] = k
 				###################################
@@ -256,8 +252,8 @@ def api_ingesta():
 			#incrementamos el contador
 			apide()
 
-def limpiar_coleccion(elem):
 
+def limpiar_coleccion(elem):
 	#############################################################################
 	# localiza los elementos duplicados, los combina en un solo elemento,       #
 	# uniendo los campos de categoria y guarda el elemento resultante en la db  #
@@ -272,7 +268,7 @@ def limpiar_coleccion(elem):
 					'titulo': {
 						first: '$titulo',
 					},
-					'link':{
+					'link': {
 						first: '$link'
 					},
 					'categoria': {
@@ -303,33 +299,23 @@ def limpiar_coleccion(elem):
 		]
 	)
 
-def main():
-	########################
-	# comienza el proceso  #
-	########################
 
-	pelis_ingesta()
-	api_ingesta()
-	#limpiar_coleccion(db_blog)
-
-
-if __name__ == '__main__':
-	#################################################
-	#Inicializams las variables globales  			#
-    #se que no hace falta iniciarlizarlas en python #
-    #pero es una practica que conservo con cariño	#
-	#################################################
-
-	k=0
-	j=0
-	feat = 'html.parser'
-	first = '$first'
+def mongo(host='localhost', port=27017):
+	#####################################################################################
+	#   Consulta al usuario si quiere usar la direccion por defecto de la base de datos #
+	#   En caso negativo, solicita meter ip y puerto									#
+	#####################################################################################
+	choice = input("¿Mongo usara la direccion y puerto por defecto? Y/N\n")
+	if choice == 'N':
+		dire = input("introduce IP base de datos\n")
+		por = input("introduce puerto\n")
+	else:
+		dire = host
+		por = port
 	######################
 	# Conecta a MongoDB  #
 	######################
-
-	mg = MongoClient("localhost", 27017)
-
+	mg = MongoClient(dire, por)
 	###################################################################
 	#  IDD ( Base de datos )---'blog' ( Coleccion )					  #
 	#	|															  #
@@ -338,13 +324,43 @@ if __name__ == '__main__':
 	#																  #
 	# crea la base de datos y las dos colecciones que usaremos        #
 	###################################################################
-
 	db = mg.idd
 	db_blog = db['blog']
 	api_db = db['api']
+	return mg, db_blog, api_db
 
+
+def main():
+	########################
+	# comienza el proceso  #
+	########################
+	ing = input('Quieres scrapear el blog o introducir una direccion alternativa? S/I\n')
+	if ing == 'I':
+		url = input("introduce la nueva url\n")
+	else:
+		url = "https://www.blogdepelis.top/"
+	pelis_ingesta(url)
+	api_ingesta()
+
+
+#limpiar_coleccion(db_blog)
+
+
+if __name__ == '__main__':
+	#################################################
+	#Inicializams las variables globales  			#
+	#se que no hace falta iniciarlizarlas en python #
+	#pero es una practica que conservo con cariño	#
+	#################################################
+
+	k = 0
+	j = 0
+	feat = 'html.parser'
+	first = '$first'
+	mg, db_blog, api_db = mongo()
 	############################################################
 	# Empieza la magia (No es ironico que empiece al final? :)#
 	############################################################
 
 	main()
+	print("Programa Finalizado Correctamente")
