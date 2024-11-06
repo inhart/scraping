@@ -12,7 +12,7 @@ import time
 def log(message):
 	with open('log.txt', 'a') as f:
 		try:
-			f.write(f'{datetime.now()} ' + f' {message}\n')
+			f.write(f'{datetime.now()}: {message}\n')
 		except Exception() as e:
 			print(f'error al guardar el log {e}')
 
