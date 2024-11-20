@@ -94,98 +94,96 @@ def pelis_ingesta(url="https://www.blogdepelis.top/"):
 		#############################################################################################
 		cat_list = []
 		for cate in cat:
-
-			if "category" in cate['href']:
-				if cate.get_text() not in cat_list:
-					cat_list.append(cate.get_text())
-					###############################
-					# Este link es una categoria  #
-					###############################
-					newlink = cate['href']
-					response2 = peticion(newlink)
-					soup2 = BeautifulSoup(response2.content, feat)
-					################################################################
-					# extraemos la cantidad de páginas que tiene cada categoría    #
-					################################################################
-					pagen = soup2.find_all('a', 'page-numbers')
-					pagen = int(pagen[-2].get_text())
-					#######################
-					# Y las recorremos    #
-					#######################
-					for i in range(1, pagen-1):
-						#####################################
-						# Para cada página en la categoría  #
-						#####################################
-						link1 = f'{newlink}/page/{i}'
-						catgry = cate.get_text()
-						###################################################
-						# recorre las todas las páginas de la categoría   #
-						###################################################
-						response3 = peticion(link1)
-						soup3 = BeautifulSoup(response3.content, feat)
-						ases = soup3.find_all('div', 'latestPost-inner')
-						for a in ases:
-							####################################
-							# Para cada película de la página  #
-							####################################
-							nombre = a.find('a')['title']
-							link2 = a.find('a')['href']
-							#################################################################
-							# Esta función recorre la página de la peli y extrae los datos  #
-							#################################################################
-							peli = peticion(link2)
-							if peli is not None:
-								soup4 = BeautifulSoup(peli.content, feat)
-								scr = soup4.find_all('div', 'separator')
-								react = soup4.find_all('span', "count-num")
-								emo = []
-								for num in react:
-									num = num.get_text()
-									emo.append(num)
-								#############################################
-								# adaptación a la variabilidad de la pagina #
-								#############################################
-								if len(scr) == 0:
-									scr = soup4.find_all('p')[1]
-									sinopsis = scr.get_text()
-								else:
-									sinopsis = scr[-1].get_text().split('\n')[0]
-								if f'(+18)' in nombre:
-									a = -7
-									b = -11
-									c = -13
-									age = True
-								else:
-									a = -1
-									b = -5
-									c = -7
-									age = False
-								film = {
-									'_id': j,
-									'titulo': nombre[:c],
-									'year': int(nombre[b:a]),
-									'categorize': catgry,
-									'like': int(emo[0]),
-									'dislike': int(emo[1]),
-									'love': int(emo[2]),
-									'shit': int(emo[3]),
-									'tVotes': int(emo[0])+int(emo[1])+int(emo[2])+int(emo[3]),
-									'link': link2,
-									'pegi': age,
-									'sinopsis': sinopsis
-								}
-								#######################
-								# Insertamos en mongo #
-								#######################
-								try:
-									amongo(db_blog, film)
-								except Exception as e:
-									print(f'error al insertar {e}')
-									log(f'error al insertar\n {e}')
-								###########################
-								# contador incrementar    #
-								###########################
-								incr()
+			if ("category" in cate['href']) and (cate.get_text() not in cat_list):
+				cat_list.append(cate.get_text())
+				###############################
+				# Este link es una categoria  #
+				###############################
+				newlink = cate['href']
+				response2 = peticion(newlink)
+				soup2 = BeautifulSoup(response2.content, feat)
+				################################################################
+				# extraemos la cantidad de páginas que tiene cada categoría    #
+				################################################################
+				pagen = soup2.find_all('a', 'page-numbers')
+				pagen = int(pagen[-2].get_text())
+				#######################
+				# Y las recorremos    #
+				#######################
+				for i in range(1, pagen-1):
+					#####################################
+					# Para cada página en la categoría  #
+					#####################################
+					link1 = f'{newlink}/page/{i}'
+					catgry = cate.get_text()
+					###################################################
+					# recorre las todas las páginas de la categoría   #
+					###################################################
+					response3 = peticion(link1)
+					soup3 = BeautifulSoup(response3.content, feat)
+					ases = soup3.find_all('div', 'latestPost-inner')
+					for a in ases:
+						####################################
+						# Para cada película de la página  #
+						####################################
+						nombre = a.find('a')['title']
+						link2 = a.find('a')['href']
+						#################################################################
+						# Esta función recorre la página de la peli y extrae los datos  #
+						#################################################################
+						peli = peticion(link2)
+						if peli is not None:
+							soup4 = BeautifulSoup(peli.content, feat)
+							scr = soup4.find_all('div', 'separator')
+							react = soup4.find_all('span', "count-num")
+							emo = []
+							for num in react:
+								num = num.get_text()
+								emo.append(num)
+							#############################################
+							# adaptación a la variabilidad de la pagina #
+							#############################################
+							if len(scr) == 0:
+								scr = soup4.find_all('p')[1]
+								sinopsis = scr.get_text()
+							else:
+								sinopsis = scr[-1].get_text().split('\n')[0]
+							if f'(+18)' in nombre:
+								a = -7
+								b = -11
+								c = -13
+								age = True
+							else:
+								a = -1
+								b = -5
+								c = -7
+								age = False
+							film = {
+								'_id': j,
+								'titulo': nombre[:c],
+								'year': int(nombre[b:a]),
+								'categorize': catgry,
+								'like': int(emo[0]),
+								'dislike': int(emo[1]),
+								'love': int(emo[2]),
+								'shit': int(emo[3]),
+								'tVotes': int(emo[0])+int(emo[1])+int(emo[2])+int(emo[3]),
+								'link': link2,
+								'pegi': age,
+								'sinopsis': sinopsis
+							}
+							#######################
+							# Insertamos en mongo #
+							#######################
+							try:
+								amongo(db_blog, film)
+							except Exception as e:
+								print(f'error al insertar {e}')
+								log(f'error al insertar\n {e}')
+							###########################
+							# contador incrementar    #
+							###########################
+							incr()
 
 
 #####################################################
