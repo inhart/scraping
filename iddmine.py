@@ -76,7 +76,7 @@ def apide():
 
 
 #################################################################################
-## Esta función realiza la primera conexión a la pagina y extrae las categorías #
+## Esta función realiza la primera conexión a la página y extrae las categorías #
 #################################################################################
 def pelis_ingesta(url="https://www.blogdepelis.top/"):
 	response = peticion(url)
@@ -148,7 +148,7 @@ def pelis_ingesta(url="https://www.blogdepelis.top/"):
 								sinopsis = scr.get_text()
 							else:
 								sinopsis = scr[-1].get_text().split('\n')[0]
-							if f'(+18)' in nombre:
+							if '(+18)' in nombre:
 								a = -7
 								b = -11
 								c = -13
@@ -203,7 +203,7 @@ def api_ingesta():
 	}
 	response = peticion(base_url, params=opt)
 	#########################################################
-	#nos aseguramos de que la peticion se hizo exitosamente #
+	#nos aseguramos de que la petición se hizo exitosamente #
 	#########################################################
 	if response is not None:
 		####################################
@@ -235,7 +235,7 @@ def api_ingesta():
 				for atom in keyname:
 					try:
 						del item[atom]
-					except:
+					finally:
 						continue
 				nc=int(item['provinceNoraCode'])
 				if nc == 48:
@@ -354,16 +354,11 @@ def main():
 	api_ingesta()
 	pelis_ingesta(url)
 
-
-
-#limpiar_coleccion(db_blog)
-
-
 if __name__ == '__main__':
 	#################################################
 	#Inicializams las variables globales  			#
 	#sé que no hace falta inicializarlas en python, #
-	#pero es una práctica que conservo con cariño	#
+	#es una práctica que conservo con cariño		#
 	#################################################
 
 	k = 0
