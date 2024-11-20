@@ -167,7 +167,6 @@ def pelis_ingesta(url="https://www.blogdepelis.top/"):
 								'dislike': int(emo[1]),
 								'love': int(emo[2]),
 								'shit': int(emo[3]),
-								'tVotes': int(emo[0])+int(emo[1])+int(emo[2])+int(emo[3]),
 								'link': link2,
 								'pegi': age,
 								'sinopsis': sinopsis
@@ -235,7 +234,7 @@ def api_ingesta():
 				for atom in keyname:
 					try:
 						del item[atom]
-					finally:
+					except:
 						continue
 				nc=int(item['provinceNoraCode'])
 				if nc == 48:
@@ -327,7 +326,7 @@ def mongo(host='localhost', port=27017):
 	######################
 	# Conecta a MongoDB  #
 	######################
-	mog = MongoClient(dire, por)
+	mg = MongoClient(dire, por)
 	###################################################################
 	#  IDD (Base de datos)---'blog' (Colección)						  #
 	#	|															  #
@@ -339,7 +338,7 @@ def mongo(host='localhost', port=27017):
 	db = mg.idd
 	blog = db['blog']
 	api = db['api']
-	return mog, blog, api
+	return mg, blog, api
 
 
 def main():
