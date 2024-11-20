@@ -158,6 +158,9 @@ def pelis_ingesta(url="https://www.blogdepelis.top/"):
 								b = -5
 								c = -7
 								age = False
+							for cant in emo:
+								nv = int(str(cant).replace('k','000').replace('.',''))
+								emo[emo.index(cant)-1]=nv
 							film = {
 								'_id': j,
 								'titulo': nombre[:c],
@@ -167,6 +170,7 @@ def pelis_ingesta(url="https://www.blogdepelis.top/"):
 								'dislike': int(emo[1]),
 								'love': int(emo[2]),
 								'shit': int(emo[3]),
+								'vTotal':int(emo[0])+int(emo[1])+int(emo[2])+int(emo[3]),
 								'link': link2,
 								'pegi': age,
 								'sinopsis': sinopsis
@@ -212,13 +216,21 @@ def api_ingesta():
 		######################################################
 		# contamos los eventos que tendremos que atravesar   #
 		######################################################
+		ele = data['totalItems']
 		tot = data['totalPages']
-		for i in range(1, tot + 1):
-			opt['_page'] = f'{i}'
-			response = peticion(base_url, params=opt)
-			if response is not None:
-				data = response.json()
-				item = data['items'][0]
+		opt = {
+			'_elements': ele,
+			'_page': 1,
+			###########################################
+			# tipo de evento "9 Audiovisuales y Cine" #
+			###########################################
+
+		}
+
+		response = peticion(base_url, params=opt)
+		if response is not None:
+			data = response.json()
+			for item in data['items']:
 				############################################
 				# generamos un id unico para cada entrada  #
 				############################################
@@ -257,11 +269,12 @@ def api_ingesta():
 				###################################
 				try:
 					amongo(api_db, item)
+					apide()
 				except Exception as e:
 					print(f'error al insertar\n {e}')
 					log(f'error al insertar\n {e}')
 			#incrementamos el contador
-			apide()
+
 
 
 def limpiar_coleccion(elem):
@@ -327,6 +340,7 @@ def mongo(host='localhost', port=27017):
 	# Conecta a MongoDB  #
 	######################
 	mg = MongoClient(dire, por)
+
 	###################################################################
 	#  IDD (Base de datos)---'blog' (Colección)						  #
 	#	|															  #
@@ -336,7 +350,9 @@ def mongo(host='localhost', port=27017):
 	# crea la base de datos y las dos colecciones que usaremos        #
 	###################################################################
 	db = mg.idd
+
 	blog = db['blog']
+
 	api = db['api']
 	return mg, blog, api
 
@@ -360,11 +376,12 @@ if __name__ == '__main__':
 	#es una práctica que conservo con cariño		#
 	#################################################
 
-	k = 0
-	j = 0
+
 	feat = 'html.parser'
 	first = '$first'
 	mg, db_blog, api_db = mongo()
+	k = api_db.count_documents({})
+	j = db_blog.count_documents({})
 	############################################################
 	# Empieza la magia (¿No es irónico que empiece al final? :)#
 	############################################################
