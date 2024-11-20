@@ -105,7 +105,7 @@ def pelis_ingesta(url="https://www.blogdepelis.top/"):
 					response2 = peticion(newlink)
 					soup2 = BeautifulSoup(response2.content, feat)
 					################################################################
-					# extraemos la cantidad de páginas que tiene cada categoria    #
+					# extraemos la cantidad de páginas que tiene cada categoría    #
 					################################################################
 					pagen = soup2.find_all('a', 'page-numbers')
 					pagen = int(pagen[-2].get_text())
@@ -126,7 +126,7 @@ def pelis_ingesta(url="https://www.blogdepelis.top/"):
 						ases = soup3.find_all('div', 'latestPost-inner')
 						for a in ases:
 							####################################
-							# Para cada pelicula de la pagina  #
+							# Para cada película de la página  #
 							####################################
 							nombre = a.find('a')['title']
 							link2 = a.find('a')['href']
@@ -270,7 +270,7 @@ def api_ingesta():
 def limpiar_coleccion(elem):
 	#############################################################################
 	# localiza los elementos duplicados, los combina en un solo elemento,       #
-	# uniendo los campos de categoria y guarda el elemento resultante en la db  #
+	# uniendo los campos de categoría y guarda el elemento resultante en la db  #
 	#############################################################################
 	elem.aggregate(
 		[
@@ -329,7 +329,7 @@ def mongo(host='localhost', port=27017):
 	######################
 	# Conecta a MongoDB  #
 	######################
-	mg = MongoClient(dire, por)
+	mog = MongoClient(dire, por)
 	###################################################################
 	#  IDD (Base de datos)---'blog' (Colección)						  #
 	#	|															  #
@@ -339,9 +339,9 @@ def mongo(host='localhost', port=27017):
 	# crea la base de datos y las dos colecciones que usaremos        #
 	###################################################################
 	db = mg.idd
-	db_blog = db['blog']
-	api_db = db['api']
-	return mg, db_blog, api_db
+	blog = db['blog']
+	api = db['api']
+	return mog, blog, api
 
 
 def main():
@@ -364,7 +364,7 @@ def main():
 if __name__ == '__main__':
 	#################################################
 	#Inicializams las variables globales  			#
-	#sé que no hace falta inicializarlas en python,#
+	#sé que no hace falta inicializarlas en python, #
 	#pero es una práctica que conservo con cariño	#
 	#################################################
 
@@ -374,7 +374,7 @@ if __name__ == '__main__':
 	first = '$first'
 	mg, db_blog, api_db = mongo()
 	############################################################
-	# Empieza la magia (No es irónico que empiece al final? :)#
+	# Empieza la magia (¿No es irónico que empiece al final? :)#
 	############################################################
 
 	main()
