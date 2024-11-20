@@ -30,7 +30,7 @@ def peticion(url, params=None, max_retries=3, base_wait_time=30):
 
 			if response.status_code == 200:
 				if retries > 0:
-					log(f'Peticion exitosa para URL {url} en el intento {retries + 1}')
+					log(f'Petición exitosa para URL {url} en el intento {retries + 1}')
 				return response
 			else:
 				log(f'HTTP error: {response.status_code} en {url}')
@@ -76,21 +76,21 @@ def apide():
 
 
 #################################################################################
-## Esta funcion realiza la primera conexion a la pagina y extrae las categorias #
+## Esta función realiza la primera conexión a la pagina y extrae las categorías #
 #################################################################################
 def pelis_ingesta(url="https://www.blogdepelis.top/"):
 	response = peticion(url)
 	if response is not None:
 		soup = BeautifulSoup(response.content, feat)
 		##########################################
-		# extraemos las categorias de la sopa    #
+		# extraemos las categorías de la sopa    #
 		##########################################
 		cat = soup.find_all('a')
 
 		#############################
-		# recorremos las categorias  #
+		# recorremos las categorías #
 		#############################################################################################
-		# como los links de categoria salen varias veces nos aseguramos de recorrerlas solo una vez #
+		# como los links de categoría salen varias veces nos aseguramos de recorrerlas solo una vez #
 		#############################################################################################
 		cat_list = []
 		for cate in cat:
@@ -105,21 +105,21 @@ def pelis_ingesta(url="https://www.blogdepelis.top/"):
 					response2 = peticion(newlink)
 					soup2 = BeautifulSoup(response2.content, feat)
 					################################################################
-					# extraemos la cantidad de paginas que tiene cada categoria    #
+					# extraemos la cantidad de páginas que tiene cada categoria    #
 					################################################################
 					pagen = soup2.find_all('a', 'page-numbers')
 					pagen = int(pagen[-2].get_text())
 					#######################
 					# Y las recorremos    #
 					#######################
-					for i in range(1, pagen):
+					for i in range(1, pagen-1):
 						#####################################
-						# Para cada pagina en la categoria  #
+						# Para cada página en la categoría  #
 						#####################################
 						link1 = f'{newlink}/page/{i}'
 						catgry = cate.get_text()
 						###################################################
-						# recorre las todas las paginas de la categoria   #
+						# recorre las todas las páginas de la categoría   #
 						###################################################
 						response3 = peticion(link1)
 						soup3 = BeautifulSoup(response3.content, feat)
@@ -131,7 +131,7 @@ def pelis_ingesta(url="https://www.blogdepelis.top/"):
 							nombre = a.find('a')['title']
 							link2 = a.find('a')['href']
 							#################################################################
-							# Esta funcion recorre la pagina de la peli y extrae los datos  #
+							# Esta función recorre la página de la peli y extrae los datos  #
 							#################################################################
 							peli = peticion(link2)
 							if peli is not None:
@@ -143,7 +143,7 @@ def pelis_ingesta(url="https://www.blogdepelis.top/"):
 									num = num.get_text()
 									emo.append(num)
 								#############################################
-								# adaptacion a la variabilidad de la pagina #
+								# adaptación a la variabilidad de la pagina #
 								#############################################
 								if len(scr) == 0:
 									scr = soup4.find_all('p')[1]
@@ -163,12 +163,13 @@ def pelis_ingesta(url="https://www.blogdepelis.top/"):
 								film = {
 									'_id': j,
 									'titulo': nombre[:c],
-									'year': nombre[b:a],
-									'categoria': catgry,
-									'like': emo[0],
-									'dislike': emo[1],
-									'love': emo[2],
-									'shit': emo[3],
+									'year': int(nombre[b:a]),
+									'categorize': catgry,
+									'like': int(emo[0]),
+									'dislike': int(emo[1]),
+									'love': int(emo[2]),
+									'shit': int(emo[3]),
+									'tVotes': int(emo[0])+int(emo[1])+int(emo[2])+int(emo[3]),
 									'link': link2,
 									'pegi': age,
 									'sinopsis': sinopsis
@@ -187,11 +188,11 @@ def pelis_ingesta(url="https://www.blogdepelis.top/"):
 								incr()
 
 
-######################################################
-# Esta funcion hace una primera llamada a la api     #
-# para obtener el total de paginas o eventos         #
-# ya que vamos a seleccionar un evento por pagina    #
-######################################################
+#####################################################
+# Esta función hace una primera llamada a la api	#
+# para obtener el total de páginas o eventos		#
+# por qué vamos a seleccionar un evento por pagina	#
+#####################################################
 def api_ingesta():
 	base_url = "https://api.euskadi.eus/culture/events/v1.0/events/"
 	opt = {
@@ -200,7 +201,7 @@ def api_ingesta():
 		###########################################
 		# tipo de evento "9 Audiovisuales y Cine" #
 		###########################################
-		'type': 9
+
 	}
 	response = peticion(base_url, params=opt)
 	#########################################################
@@ -232,14 +233,27 @@ def api_ingesta():
 						   'sourceNameEu', 'sourceUrlEu', 'priceEu',
 						   'purchaseUrlEu', 'descriptionEu',
 						   'municipalityEu', 'establishmentEu',
-						   'urlEventEu', 'urlNameEu']
+						   'urlEventEu', 'urlNameEu','companyEu']
 				for atom in keyname:
 					try:
 						del item[atom]
-					except Exception as e:
-						#log(f'error {e} al borrar la entrada {keyname}')
+					except:
 						continue
-
+				nc=int(item['provinceNoraCode'])
+				if nc == 48:
+					item['provinceNoraES'] = 'Bizkaia'
+				if nc == 46:
+					item['provinceNoraES'] = 'Araba'
+				if nc == 20:
+					item['provinceNoraES'] = 'Gipuzkoa'
+				item['year']=int(item['startDate'][0:4])
+				try:
+					if '€' in item['priceEs']:
+						item['priceEs']=float(item['priceEs'][:-2].replace(',','.'))
+					else:
+						item['priceEs']=0
+				except:
+					item['priceEs']=0
 				item['_id'] = k
 				###################################
 				# insertamos en la base de datos  #
@@ -302,10 +316,10 @@ def limpiar_coleccion(elem):
 
 def mongo(host='localhost', port=27017):
 	#####################################################################################
-	#   Consulta al usuario si quiere usar la direccion por defecto de la base de datos #
+	#   Consulta al usuario si quiere usar la dirección por defecto de la base de datos #
 	#   En caso negativo, solicita meter ip y puerto									#
 	#####################################################################################
-	choice = input("¿Mongo usara la direccion y puerto por defecto? Y/N\n")
+	choice = input("¿Mongo usara la dirección y puerto por defecto? Y/N\n")
 	if choice == 'N':
 		dire = input("introduce IP base de datos\n")
 		por = input("introduce puerto\n")
@@ -317,10 +331,10 @@ def mongo(host='localhost', port=27017):
 	######################
 	mg = MongoClient(dire, por)
 	###################################################################
-	#  IDD ( Base de datos )---'blog' ( Coleccion )					  #
+	#  IDD (Base de datos)---'blog' (Colección)						  #
 	#	|															  #
 	#	|															  #
-	#'api' ( Coleccion )											  #
+	#'api' (Colección)												  #
 	#																  #
 	# crea la base de datos y las dos colecciones que usaremos        #
 	###################################################################
@@ -334,13 +348,14 @@ def main():
 	########################
 	# comienza el proceso  #
 	########################
-	ing = input('Quieres scrapear el blog o introducir una direccion alternativa? S/I\n')
-	if ing == 'I':
+	ing = input('Quieres scrapear el blog o introducir una dirección alternativa? Y/N\n')
+	if ing == 'N':
 		url = input("introduce la nueva url\n")
 	else:
 		url = "https://www.blogdepelis.top/"
-	pelis_ingesta(url)
 	api_ingesta()
+	pelis_ingesta(url)
+
 
 
 #limpiar_coleccion(db_blog)
@@ -349,8 +364,8 @@ def main():
 if __name__ == '__main__':
 	#################################################
 	#Inicializams las variables globales  			#
-	#se que no hace falta iniciarlizarlas en python #
-	#pero es una practica que conservo con cariño	#
+	#sé que no hace falta inicializarlas en python,#
+	#pero es una práctica que conservo con cariño	#
 	#################################################
 
 	k = 0
@@ -359,7 +374,7 @@ if __name__ == '__main__':
 	first = '$first'
 	mg, db_blog, api_db = mongo()
 	############################################################
-	# Empieza la magia (No es ironico que empiece al final? :)#
+	# Empieza la magia (No es irónico que empiece al final? :)#
 	############################################################
 
 	main()
