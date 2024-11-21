@@ -151,8 +151,15 @@ def correpag(lin, cat):
 		nombre = a.find('a')['title']
 		link = a.find('a')['href']
 		x = threading.Thread(target=correpeli, args=(link, nombre,cat,))
-		threads.append(x)
-		x.start()
+
+		if len(threads)<10:
+			threads.append(x)
+			x.start()
+			print(len(threads))
+		else:
+			for i in range(10):
+				threads[i].join()
+				print(len(threads))
 
 
 		#correpeli(link, nombre, cat)
@@ -165,7 +172,10 @@ def correcat(lin, cat_l):
 	# extraemos la cantidad de páginas que tiene cada categoría    #
 	################################################################
 	pagen = soup.find_all('a', 'page-numbers')
-	pagen = int(pagen[-2].get_text())
+	if len(pagen) >=2:
+		pagen = int(pagen[-2].get_text())
+	else:
+		pagen = int(pagen[0].get_text())
 	#######################
 	# Y las recorremos    #
 	#######################
@@ -358,9 +368,6 @@ if __name__ == '__main__':
 	feat = 'html.parser'
 	first = '$first'
 	mg, db_blog, api_db = mongo()
-
-	k = api_db.count_documents({})
-	j = db_blog.count_documents({})
 	############################################################
 	# Empieza la magia (¿No es irónico que empiece al final? :)#
 	############################################################
