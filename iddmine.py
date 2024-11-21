@@ -66,7 +66,7 @@ def amongo(daba, film, filt={}):
 
 	if daba.count_documents({}) !=0:
 		if 'api' in daba.full_name:
-			filt = {'nameEs': film['nameEs'],'startDate' : film['startDate'],'municipalityEs':film['municipalityEs']}
+			filt = {'nameEs': film['nameEs'],'startDate' : film['startDate']}
 		else:
 			filt = {'titulo': film['titulo'],'year': film['year'],'categoria': film['categoria']}
 
