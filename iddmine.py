@@ -150,16 +150,17 @@ def correpag(lin, cat):
 		####################################
 		nombre = a.find('a')['title']
 		link = a.find('a')['href']
-		x = threading.Thread(target=correpeli, args=(link, nombre,cat,))
+		x = threading.Thread(target=correpeli, args=(link, nombre, cat,))
+		threads.append(x)
+		x.start()
+		if len(threads)<8:
 
-		if len(threads)<10:
-			threads.append(x)
-			x.start()
-			#print(len(threads))
+			#threads[0].join()
+			print(len(threads))
 		else:
-			for i in range(10):
-				threads[i].join()
-				#print(len(threads))
+			for thread in threads:
+				thread.join()
+			print(len(threads))
 
 
 		#correpeli(link, nombre, cat)
