@@ -54,8 +54,19 @@ def peticion(url, params=None, max_retries=3, base_wait_time=30):
 ############################################
 #Funcion para insertar en la base de datos #
 ############################################
-def amongo(daba, film):
-	post = daba.insert_one(film)
+def amongo(daba, film, filt={}):
+
+	if daba.count_documents({}) !=0:
+		if 'api' in daba.full_name:
+			filt = {'nameEs': film['nameEs']}
+		else:
+			filt = {'titulo': film['titulo']}
+
+	try:
+		post = daba.update_one(filt, {'$set' : film}, upsert=True)
+
+	except:
+		post = daba.insert_one(film)
 	return post
 
 
@@ -162,7 +173,7 @@ def pelis_ingesta(url="https://www.blogdepelis.top/"):
 								nv = int(str(cant).replace('k','000').replace('.',''))
 								emo[emo.index(cant)-1]=nv
 							film = {
-								'_id': j,
+
 								'titulo': nombre[:c],
 								'year': int(nombre[b:a]),
 								'categorize': catgry,
@@ -178,11 +189,7 @@ def pelis_ingesta(url="https://www.blogdepelis.top/"):
 							#######################
 							# Insertamos en mongo #
 							#######################
-							try:
-								amongo(db_blog, film)
-							except Exception as e:
-								print(f'error al insertar {e}')
-								log(f'error al insertar\n {e}')
+							amongo(db_blog, film)
 							###########################
 							# contador incrementar    #
 							###########################
@@ -263,66 +270,13 @@ def api_ingesta():
 						item['priceEs']=0
 				except:
 					item['priceEs']=0
-				item['_id'] = k
+				#item['_id'] = k
 				###################################
 				# insertamos en la base de datos  #
 				###################################
-				try:
-					amongo(api_db, item)
-					apide()
-				except Exception as e:
-					print(f'error al insertar\n {e}')
-					log(f'error al insertar\n {e}')
+				amongo(api_db, item)
+				apide()
 			#incrementamos el contador
-
-
-
-def limpiar_coleccion(elem):
-	#############################################################################
-	# localiza los elementos duplicados, los combina en un solo elemento,       #
-	# uniendo los campos de categoría y guarda el elemento resultante en la db  #
-	#############################################################################
-	elem.aggregate(
-		[
-			{
-				'$group': {
-					'_id': {
-						first: '$_id'
-					},
-					'titulo': {
-						first: '$titulo',
-					},
-					'link': {
-						first: '$link'
-					},
-					'categoria': {
-						'$addToSet': '$categoria'
-					},
-					'love': {
-						first: '$love'
-					},
-					'year': {
-						first: '$year'
-					},
-					'like': {
-						first: '$like'
-					},
-					'shit': {
-						first: '$shit'
-					},
-					'dislike': {
-						first: '$dislike'
-					},
-					'sinopsis': {
-						first: '$sinopsis'
-					}
-				}
-			}, {
-			'$out': 'blog'
-		}
-		]
-	)
-
 
 def mongo(host='localhost', port=27017):
 	#####################################################################################
@@ -380,6 +334,7 @@ if __name__ == '__main__':
 	feat = 'html.parser'
 	first = '$first'
 	mg, db_blog, api_db = mongo()
+
 	k = api_db.count_documents({})
 	j = db_blog.count_documents({})
 	############################################################
