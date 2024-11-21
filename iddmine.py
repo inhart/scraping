@@ -66,7 +66,7 @@ def amongo(daba, film, filt={}):
 
 	if daba.count_documents({}) !=0:
 		if 'api' in daba.full_name:
-			filt = {'nameEs': film['nameEs']}
+			filt = {'nameEs': film['nameEs'],'startDate' : film['startDate'],'municipalityEs':film['municipalityEs']}
 		else:
 			filt = {'titulo': film['titulo'],'year': film['year'],'categoria': film['categoria']}
 
@@ -153,7 +153,7 @@ def pelis_ingesta(url="https://www.blogdepelis.top/"):
 							else:
 								sinopsis = scr[-1].get_text().split('\n')[0]
 
-							tya = re.split('[\(?:*)]',nombre)
+							tya = re.split('[\(:*)]',nombre)
 							while len(tya) < 3:
 								tya.append('')
 
