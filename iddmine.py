@@ -30,7 +30,7 @@ def log(message):
 # Gestiona las peticiones a las paginas #
 #########################################
 
-def peticion(url, params=None, max_retries=3, base_wait_time=30):
+def peticion(url, params=None, max_retries=5, base_wait_time=5):
 	retries = 0
 
 	while retries <= max_retries:
@@ -132,7 +132,7 @@ def correpeli(lin, nombre, cat):
 	# Insertamos en mongo #
 	#######################
 	amongo(db_blog, film)
-
+	print('1 ' + titulo)
 
 def correpag(lin, cat):
 	###################################################
@@ -153,11 +153,11 @@ def correpag(lin, cat):
 		x = threading.Thread(target=correpeli, args=(link, nombre, cat,))
 		threads.append(x)
 		x.start()
-
-		if len(threads)>10:
+		print('0 ' + nombre)
+		if len(threads)>1000:
 			for thread in threads:
 				thread.join()
-			print(len(threads))
+
 
 
 		#correpeli(link, nombre, cat)
@@ -173,7 +173,7 @@ def correcat(lin, cat_l):
 	if len(pagen) >=2:
 		pagen = int(pagen[-2].get_text())
 	else:
-		pagen = int(pagen[0].get_text())
+		pagen = 2
 	#######################
 	# Y las recorremos    #
 	#######################
