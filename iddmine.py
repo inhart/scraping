@@ -222,10 +222,11 @@ def cleanitem(item):
 	if nc == 20:
 		item['provinceNoraES'] = 'Gipuzkoa'
 	item['year'] = int(item['startDate'][0:4])
-	if '€' in item['priceEs']:
-		item['priceEs'] = float(item['priceEs'][:-2].replace(',', '.'))
-	else:
-		item['priceEs'] = 0
+	try:
+		if '€' in item['priceEs']:
+			item['priceEs'] = float(item['priceEs'][:-2].replace(',', '.'))
+	except KeyError:
+			item['priceEs'] = 0
 
 	return item
 
