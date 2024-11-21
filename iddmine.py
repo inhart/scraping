@@ -290,13 +290,14 @@ def mongo(host='localhost', port=27017):
 	return mg, blog, api
 
 
-def main():
+def main(mc):
 	########################
 	# comienza el proceso  #
 	########################
 	url = "https://www.blogdepelis.top/"
 	api_ingesta()
 	pelis_ingesta(url)
+	mc.close()
 
 if __name__ == '__main__':
 	#################################################
@@ -316,5 +317,5 @@ if __name__ == '__main__':
 	# Empieza la magia (¿No es irónico que empiece al final? :)#
 	############################################################
 
-	main()
+	main(mg)
 	print("Programa Finalizado Correctamente")
