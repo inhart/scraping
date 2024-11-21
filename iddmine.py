@@ -153,11 +153,8 @@ def correpag(lin, cat):
 		x = threading.Thread(target=correpeli, args=(link, nombre, cat,))
 		threads.append(x)
 		x.start()
-		if len(threads)<8:
 
-			#threads[0].join()
-			print(len(threads))
-		else:
+		if len(threads)>10:
 			for thread in threads:
 				thread.join()
 			print(len(threads))
