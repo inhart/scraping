@@ -30,7 +30,7 @@ def log(message):
 # Gestiona las peticiones a las paginas #
 #########################################
 
-def peticion(url, params=None, max_retries=5, base_wait_time=5):
+def peticion(url, params=None, max_retries=5, base_wait_time=10):
 	retries = 0
 
 	while retries <= max_retries:
@@ -153,7 +153,7 @@ def correpag(lin, cat):
 		x = threading.Thread(target=correpeli, args=(link, nombre, cat,))
 		threads.append(x)
 		x.start()
-		print('0 ' + nombre)
+
 		if len(threads)>1000:
 			for thread in threads:
 				thread.join()
@@ -177,7 +177,7 @@ def correcat(lin, cat_l):
 	#######################
 	# Y las recorremos    #
 	#######################
-	for i in range(1, pagen - 1):
+	for i in range(1, pagen + 1):
 		#####################################
 		# Para cada página en la categoría  #
 		#####################################
@@ -271,6 +271,7 @@ def apide(b_url, opt):
 		amongo(api_db, item)
 
 
+
 #####################################################
 # Esta función hace una primera llamada a la api	#
 # para obtener el total de páginas o eventos		#
@@ -338,7 +339,7 @@ def mongo(host='localhost', port=27017):
 
 def exit_program():
 	print("Exiting the program...")
-	mg.close()
+
 	exit(0)
 
 def main():
