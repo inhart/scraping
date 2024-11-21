@@ -156,7 +156,7 @@ def pelis_ingesta(url="https://www.blogdepelis.top/"):
 							while len(tya) < 3:
 								tya.append('')
 
-							titulo = juntar(tya[0:-2])
+							titulo = juntar(tya[0:-2]).replace('  ',': ')
 							year = tya[-2].split()[0]
 							age = tya[-1]
 
@@ -306,6 +306,10 @@ def main():
 	url = "https://www.blogdepelis.top/"
 	api_ingesta()
 	pelis_ingesta(url)
+
+
+
+
 	print("Programa Finalizado Correctamente")
 	exit_program()
 
