@@ -277,7 +277,7 @@ def apide(b_url, opt):
 # para obtener el total de páginas o eventos		#
 # por qué vamos a seleccionar un evento por pagina	#
 #####################################################
-def api_ingesta(b_url = "https://api.euskadi.eus/culture/events/v1.0/events/",opt = {'_elements': 1,'_page': 1}):
+def api_ingesta(b_url = "https://api.euskadi.eus/culture/events/v1.0/events/",opt = {'_page': 1}):
 
 	response = peticion(b_url, params=opt)
 	####################################
