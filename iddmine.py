@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 import time
 import re
+import threading
 
 ###################################
 #Funcion para estructurar el log  #
@@ -137,16 +138,24 @@ def correpag(lin, cat):
 	###################################################
 	# recorre las todas las páginas de la categoría   #
 	###################################################
+	threads = list()
 	response = peticion(lin)
 	soup3 = BeautifulSoup(response.content, feat)
 	ases = soup3.find_all('div', 'latestPost-inner')
+
 	for a in ases:
+
 		####################################
 		# Para cada película de la página  #
 		####################################
 		nombre = a.find('a')['title']
 		link = a.find('a')['href']
-		correpeli(link, nombre, cat)
+		x = threading.Thread(target=correpeli, args=(link, nombre,cat,))
+		threads.append(x)
+		x.start()
+
+
+		#correpeli(link, nombre, cat)
 
 # print(db_blog.count_documents({}))
 def correcat(lin, cat_l):
@@ -195,6 +204,7 @@ def pelis_ingesta(url="https://www.blogdepelis.top/"):
 				###############################
 				newlink = cate['href']
 				correcat(newlink, cate)
+
 def cleanitem(item):
 	############################################
 	# generamos un id unico para cada entrada  #
@@ -330,9 +340,9 @@ def main():
 	url = "https://www.blogdepelis.top/"
 	apiurl = "https://api.euskadi.eus/culture/events/v1.0/events/"
 
-	api_ingesta(apiurl)
-
 	pelis_ingesta(url)
+
+	api_ingesta(apiurl)
 
 	print("Programa Finalizado Correctamente")
 	exit_program()
