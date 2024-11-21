@@ -157,7 +157,7 @@ def pelis_ingesta(url="https://www.blogdepelis.top/"):
 								tya.append('')
 
 							titulo = juntar(tya[0:-2]).replace('  ',': ')
-							year = tya[-2].split()[0]
+							year = tya[-2].split()[0] if tya[-2] != '' else tya[-2].split()
 							age = tya[-1]
 
 							for cant in emo:
@@ -304,11 +304,10 @@ def main():
 	# comienza el proceso  #
 	########################
 	url = "https://www.blogdepelis.top/"
+
 	api_ingesta()
+
 	pelis_ingesta(url)
-
-
-
 
 	print("Programa Finalizado Correctamente")
 	exit_program()
