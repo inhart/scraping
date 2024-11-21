@@ -64,19 +64,109 @@ def peticion(url, params=None, max_retries=3, base_wait_time=30):
 ############################################
 def amongo(daba, film, filt={}):
 
-	if daba.count_documents({}) !=0:
+	if daba.count_documents({}) != 0:
 		if 'api' in daba.full_name:
-			filt = {'nameEs': film['nameEs'],'startDate' : film['startDate']}
+			filt = {'nameEs': film['nameEs'], 'startDate': film['startDate']}
 		else:
-			filt = {'titulo': film['titulo'],'year': film['year'],'categoria': film['categoria']}
+			filt = {'titulo': film['titulo'], 'year': film['year'], 'categoria': film['categoria']}
 
-	try:
-		daba.update_one(filt, {'$set' : film}, upsert=True)
-
-	except:
-
+	up = daba.update_one(filt, {'$set': film}, upsert=True)
+	print(up)
+	ok = int(up.raw_result['ok'])
+	if ok == 1:
+		return
+	else:
 		daba.insert_one(film)
 		log(f'Error insertando {film}')
+
+
+def correpeli(lin, nombre, cat):
+	#################################################################
+	# Esta función recorre la página de la peli y extrae los datos  #
+	#################################################################
+	peli = peticion(lin)
+	if peli is None:
+		return
+	soup4 = BeautifulSoup(peli.content, feat)
+	scr = soup4.find_all('div', 'separator')
+	react = soup4.find_all('span', "count-num")
+	emo = []
+	for num in react:
+		num = num.get_text()
+		emo.append(num)
+	#############################################
+	# adaptación a la variabilidad de la pagina #
+	#############################################
+	if len(scr) == 0:
+		scr = soup4.find_all('p')[1]
+		sinopsis = scr.get_text()
+	else:
+		sinopsis = scr[-1].get_text().split('\n')[0]
+
+	tya = re.split('[\(:*)]', nombre)
+	while len(tya) < 3:
+		tya.append('')
+
+	titulo = juntar(tya[0:-2])
+	year = tya[-2].split()[0] if tya[-2] != '' else tya[-2]
+	age = tya[-1]
+
+	for cant in emo:
+		nv = int(str(cant).replace('k', '000').replace('.', ''))
+		emo[emo.index(cant) - 1] = nv
+	film = {
+		'titulo': titulo,
+		'year': int(year) if str(year) != '' else 2004,
+		'categoria': cat,
+		'like': int(emo[0]),
+		'dislike': int(emo[1]),
+		'love': int(emo[2]),
+		'shit': int(emo[3]),
+		'vTotal': int(emo[0]) + int(emo[1]) + int(emo[2]) + int(emo[3]),
+		'link': lin,
+		'pegi': False if age == '' else True,
+		'sinopsis': sinopsis
+	}
+	#######################
+	# Insertamos en mongo #
+	#######################
+	amongo(db_blog, film)
+
+
+def correpag(lin, cat):
+	###################################################
+	# recorre las todas las páginas de la categoría   #
+	###################################################
+	response = peticion(lin)
+	soup3 = BeautifulSoup(response.content, feat)
+	ases = soup3.find_all('div', 'latestPost-inner')
+	for a in ases:
+		####################################
+		# Para cada película de la página  #
+		####################################
+		nombre = a.find('a')['title']
+		link = a.find('a')['href']
+		correpeli(link, nombre, cat)
+
+# print(db_blog.count_documents({}))
+def correcat(lin, cat_l):
+	response = peticion(lin)
+	soup = BeautifulSoup(response.content, feat)
+	################################################################
+	# extraemos la cantidad de páginas que tiene cada categoría    #
+	################################################################
+	pagen = soup.find_all('a', 'page-numbers')
+	pagen = int(pagen[-2].get_text())
+	#######################
+	# Y las recorremos    #
+	#######################
+	for i in range(1, pagen - 1):
+		#####################################
+		# Para cada página en la categoría  #
+		#####################################
+		link1 = f'{lin}/page/{i}'
+		catgry = cat_l.get_text()
+		correpag(link1, catgry)
 
 
 #################################################################################
@@ -104,85 +194,53 @@ def pelis_ingesta(url="https://www.blogdepelis.top/"):
 				# Este link es una categoria  #
 				###############################
 				newlink = cate['href']
-				response2 = peticion(newlink)
-				soup2 = BeautifulSoup(response2.content, feat)
-				################################################################
-				# extraemos la cantidad de páginas que tiene cada categoría    #
-				################################################################
-				pagen = soup2.find_all('a', 'page-numbers')
-				pagen = int(pagen[-2].get_text())
-				#######################
-				# Y las recorremos    #
-				#######################
-				for i in range(1, pagen-1):
-					#####################################
-					# Para cada página en la categoría  #
-					#####################################
-					link1 = f'{newlink}/page/{i}'
-					catgry = cate.get_text()
-					###################################################
-					# recorre las todas las páginas de la categoría   #
-					###################################################
-					response3 = peticion(link1)
-					soup3 = BeautifulSoup(response3.content, feat)
-					ases = soup3.find_all('div', 'latestPost-inner')
-					for a in ases:
-						####################################
-						# Para cada película de la página  #
-						####################################
-						nombre = a.find('a')['title']
-						link2 = a.find('a')['href']
-						#################################################################
-						# Esta función recorre la página de la peli y extrae los datos  #
-						#################################################################
-						peli = peticion(link2)
-						if peli is not None:
-							soup4 = BeautifulSoup(peli.content, feat)
-							scr = soup4.find_all('div', 'separator')
-							react = soup4.find_all('span', "count-num")
-							emo = []
-							for num in react:
-								num = num.get_text()
-								emo.append(num)
-							#############################################
-							# adaptación a la variabilidad de la pagina #
-							#############################################
-							if len(scr) == 0:
-								scr = soup4.find_all('p')[1]
-								sinopsis = scr.get_text()
-							else:
-								sinopsis = scr[-1].get_text().split('\n')[0]
+				correcat(newlink, cate)
+def cleanitem(item):
+	############################################
+	# generamos un id unico para cada entrada  #
+	############################################
+	del item['id']
+	#############################################
+	# Limpiamos las entradas en euskera         #
+	#############################################
+	keyname = ['typeEu', 'nameEu', 'openingHoursEu',
+			   'sourceNameEu', 'sourceUrlEu', 'priceEu',
+			   'purchaseUrlEu', 'descriptionEu',
+			   'municipalityEu', 'establishmentEu',
+			   'urlEventEu', 'urlNameEu', 'companyEu']
+	for atom in keyname:
+		try:
+			del item[atom]
+		except KeyError:
+			continue
 
-							tya = re.split('[\(:*)]',nombre)
-							while len(tya) < 3:
-								tya.append('')
+	nc = int(item['provinceNoraCode'])
+	if nc == 48:
+		item['provinceNoraES'] = 'Bizkaia'
+	if nc == 46:
+		item['provinceNoraES'] = 'Araba'
+	if nc == 20:
+		item['provinceNoraES'] = 'Gipuzkoa'
+	item['year'] = int(item['startDate'][0:4])
+	if '€' in item['priceEs']:
+		item['priceEs'] = float(item['priceEs'][:-2].replace(',', '.'))
+	else:
+		item['priceEs'] = 0
 
-							titulo = juntar(tya[0:-2])
-							year = tya[-2].split()[0] if tya[-2] != '' else tya[-2]
-							age = tya[-1]
+	return item
 
-							for cant in emo:
-								nv = int(str(cant).replace('k','000').replace('.',''))
-								emo[emo.index(cant)-1]=nv
-							film = {
-								'titulo': titulo,
-								'year': int(year) if str(year) != '' else 2004,
-								'categoria': catgry,
-								'like': int(emo[0]),
-								'dislike': int(emo[1]),
-								'love': int(emo[2]),
-								'shit': int(emo[3]),
-								'vTotal':int(emo[0])+int(emo[1])+int(emo[2])+int(emo[3]),
-								'link': link2,
-								'pegi': False if age == '' else True,
-								'sinopsis': sinopsis
-							}
-							#######################
-							# Insertamos en mongo #
-							#######################
-							amongo(db_blog, film)
-							print(db_blog.count_documents({}))
+def apide(b_url, opt):
+	response = peticion(b_url, params=opt)
+	if response is None:
+		return
+	data = response.json()
+	for item in data['items']:
+		item = cleanitem(item)
 
+		###################################
+		# insertamos en la base de datos  #
+		###################################
+		amongo(api_db, item)
 
 
 #####################################################
@@ -190,80 +248,32 @@ def pelis_ingesta(url="https://www.blogdepelis.top/"):
 # para obtener el total de páginas o eventos		#
 # por qué vamos a seleccionar un evento por pagina	#
 #####################################################
-def api_ingesta():
-	base_url = "https://api.euskadi.eus/culture/events/v1.0/events/"
+def api_ingesta(b_url = "https://api.euskadi.eus/culture/events/v1.0/events/",opt = {'_elements': 1,'_page': 1}):
+
+	response = peticion(b_url, params=opt)
+	####################################
+	#pasamos el json de la respuesta   #
+	####################################
+	if response is None:
+		return
+	#########################################################
+	#nos aseguramos de que la petición se hizo exitosamente #
+	#########################################################
+	data = response.json()
+	######################################################
+	# contamos los eventos que tendremos que atravesar   #
+	######################################################
+	ele = data['totalItems']
+
 	opt = {
-		'_elements': 1,
+		'_elements': ele,
 		'_page': 1,
 		###########################################
 		# tipo de evento "9 Audiovisuales y Cine" #
 		###########################################
 
 	}
-	response = peticion(base_url, params=opt)
-	#########################################################
-	#nos aseguramos de que la petición se hizo exitosamente #
-	#########################################################
-	if response is not None:
-		####################################
-		#pasamos el json de la respuesta   #
-		####################################
-		data = response.json()
-		######################################################
-		# contamos los eventos que tendremos que atravesar   #
-		######################################################
-		ele = data['totalItems']
-		tot = data['totalPages']
-		opt = {
-			'_elements': ele,
-			'_page': 1,
-			###########################################
-			# tipo de evento "9 Audiovisuales y Cine" #
-			###########################################
-
-		}
-
-		response = peticion(base_url, params=opt)
-		if response is not None:
-			data = response.json()
-			for item in data['items']:
-				############################################
-				# generamos un id unico para cada entrada  #
-				############################################
-				del item['id']
-				#############################################
-				# Limpiamos las entradas en euskera         #
-				#############################################
-				keyname = ['typeEu', 'nameEu', 'openingHoursEu',
-						   'sourceNameEu', 'sourceUrlEu', 'priceEu',
-						   'purchaseUrlEu', 'descriptionEu',
-						   'municipalityEu', 'establishmentEu',
-						   'urlEventEu', 'urlNameEu','companyEu']
-				for atom in keyname:
-					try:
-						del item[atom]
-					except:
-						continue
-				nc=int(item['provinceNoraCode'])
-				if nc == 48:
-					item['provinceNoraES'] = 'Bizkaia'
-				if nc == 46:
-					item['provinceNoraES'] = 'Araba'
-				if nc == 20:
-					item['provinceNoraES'] = 'Gipuzkoa'
-				item['year']=int(item['startDate'][0:4])
-				try:
-					if '€' in item['priceEs']:
-						item['priceEs']=float(item['priceEs'][:-2].replace(',','.'))
-					else:
-						item['priceEs']=0
-				except:
-					item['priceEs']=0
-
-				###################################
-				# insertamos en la base de datos  #
-				###################################
-				amongo(api_db, item)
+	apide(b_url,opt)
 
 
 def mongo(host='localhost', port=27017):
@@ -308,8 +318,9 @@ def main():
 	# comienza el proceso  #
 	########################
 	url = "https://www.blogdepelis.top/"
+	apiurl = "https://api.euskadi.eus/culture/events/v1.0/events/"
 
-	api_ingesta()
+	api_ingesta(apiurl)
 
 	pelis_ingesta(url)
 
