@@ -71,7 +71,7 @@ def amongo(daba, film, filt={}):
 			filt = {'titulo': film['titulo'], 'year': film['year'], 'categoria': film['categoria']}
 
 	up = daba.update_one(filt, {'$set': film}, upsert=True)
-	print(up)
+
 	ok = int(up.raw_result['ok'])
 	if ok == 1:
 		return
@@ -222,16 +222,22 @@ def cleanitem(item):
 	if nc == 20:
 		item['provinceNoraES'] = 'Gipuzkoa'
 	item['year'] = int(item['startDate'][0:4])
+	precio = 0.0
 	try:
-		if '€' in item['priceEs']:
-			precio = item['priceEs'][:-2].replace(',', '.')
-			item['priceEs'] = float(precio)
+		if 'http' in item['priceEs']:
+			raise ValueError
+		precio = re.findall('(\d+\.*\d+)', item['priceEs'])
+		if len(precio) != 0:
+			precio = precio[0].replace(',', '.')
+		else:
+			precio = 0.0
 	except KeyError:
-			item['priceEs'] = 0.0
+		precio = 0.0
 	except ValueError:
-		item['priceEs'] = float(item['priceEs'][:-2].replace(',', '.').split('/')[-1])
-
-	return item
+		precio = 0.0
+	finally:
+		item['priceEs'] = float(precio)
+		return item
 
 def apide(b_url, opt):
 	response = peticion(b_url, params=opt)
