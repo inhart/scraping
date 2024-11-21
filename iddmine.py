@@ -154,9 +154,9 @@ def correpag(lin, cat):
 		threads.append(x)
 		x.start()
 
-		if len(threads)>1000:
-			for thread in threads:
-				thread.join()
+		#if len(threads)>1000:
+			#for thread in threads:
+			#	thread.join()
 
 
 
