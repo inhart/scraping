@@ -70,23 +70,6 @@ def amongo(daba, film, filt={}):
 		daba.insert_one(film)
 		log(f'Error insertando {film}')
 
-
-#########################
-#Setter de contadores	#
-#########################
-def incr():
-	global j
-	j += 1
-
-
-########################
-# Setter de contadores #
-########################
-def apide():
-	global k
-	k += 1
-
-
 #################################################################################
 ## Esta función realiza la primera conexión a la página y extrae las categorías #
 #################################################################################
