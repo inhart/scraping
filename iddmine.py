@@ -224,9 +224,12 @@ def cleanitem(item):
 	item['year'] = int(item['startDate'][0:4])
 	try:
 		if '€' in item['priceEs']:
-			item['priceEs'] = float(item['priceEs'][:-2].replace(',', '.'))
+			precio = item['priceEs'][:-2].replace(',', '.').split('/')
+			item['priceEs'] = float(precio)
 	except KeyError:
-			item['priceEs'] = 0
+			item['priceEs'] = 0.0
+	except ValueError:
+		item['priceEs'] = float(item['priceEs'][:-2].replace(',', '.').split('/')[-1])
 
 	return item
 
