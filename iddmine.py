@@ -175,10 +175,6 @@ def pelis_ingesta(url="https://www.blogdepelis.top/"):
 							# Insertamos en mongo #
 							#######################
 							amongo(db_blog, film)
-							###########################
-							# contador incrementar    #
-							###########################
-
 
 
 #####################################################
@@ -255,7 +251,7 @@ def api_ingesta():
 						item['priceEs']=0
 				except:
 					item['priceEs']=0
-				#item['_id'] = k
+
 				###################################
 				# insertamos en la base de datos  #
 				###################################
@@ -298,11 +294,7 @@ def main():
 	########################
 	# comienza el proceso  #
 	########################
-	ing = input('Quieres scrapear el blog o introducir una dirección alternativa? Y/N\n')
-	if ing == 'N':
-		url = input("introduce la nueva url\n")
-	else:
-		url = "https://www.blogdepelis.top/"
+	url = "https://www.blogdepelis.top/"
 	api_ingesta()
 	pelis_ingesta(url)
 
