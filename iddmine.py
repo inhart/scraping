@@ -11,7 +11,9 @@ import re
 def juntar(lista):
 	tmp=''
 	for item in lista:
-		tmp+=item
+		tmp+=item +" "
+	while tmp[-1] == ' ':
+		tmp=tmp[0:-2]
 	return tmp
 
 def log(message):
@@ -150,20 +152,20 @@ def pelis_ingesta(url="https://www.blogdepelis.top/"):
 							else:
 								sinopsis = scr[-1].get_text().split('\n')[0]
 
-							tya = re.split('[\(?:*)]',nombre),0,0
+							tya = re.split('[\(?:*)]',nombre)
 							while len(tya) < 3:
 								tya.append('')
 
-							titulo = tya[0]
-							year = tya[1]
-							age = tya[2]
+							titulo = juntar(tya[0:-2])
+							year = tya[-2]
+							age = tya[-1]
 
 							for cant in emo:
 								nv = int(str(cant).replace('k','000').replace('.',''))
 								emo[emo.index(cant)-1]=nv
 							film = {
 								'titulo': titulo,
-								'year': year,
+								'year': int(year) if year != '' else 2004,
 								'categoria': catgry,
 								'like': int(emo[0]),
 								'dislike': int(emo[1]),
@@ -302,8 +304,11 @@ def main():
 	# comienza el proceso  #
 	########################
 	url = "https://www.blogdepelis.top/"
-	api_ingesta()
+
 	pelis_ingesta(url)
+
+	api_ingesta()
+
 	print("Programa Finalizado Correctamente")
 	exit_program()
 
