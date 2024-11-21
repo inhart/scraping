@@ -184,6 +184,7 @@ def pelis_ingesta(url="https://www.blogdepelis.top/"):
 							print(db_blog.count_documents({}))
 
 
+
 #####################################################
 # Esta función hace una primera llamada a la api	#
 # para obtener el total de páginas o eventos		#
