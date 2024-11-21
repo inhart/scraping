@@ -134,6 +134,7 @@ def correpeli(lin, nombre, cat):
 	amongo(db_blog, film)
 	print('1 ' + titulo)
 
+
 def correpag(lin, cat):
 	###################################################
 	# recorre las todas las páginas de la categoría   #
@@ -154,12 +155,13 @@ def correpag(lin, cat):
 		threads.append(x)
 		x.start()
 
-		#if len(threads)>1000:
-			#for thread in threads:
-			#	thread.join()
+		print('a')
 
 
-
+		if threading.active_count() >= 1000:
+			for thread in threads:
+				if thread.is_alive() == 1:
+					thread.join()
 		#correpeli(link, nombre, cat)
 
 # print(db_blog.count_documents({}))
@@ -363,6 +365,7 @@ if __name__ == '__main__':
 	#es una práctica que conservo con cariño		#
 	#################################################
 
+	i,f = 0 , 0
 
 	feat = 'html.parser'
 	first = '$first'
