@@ -60,14 +60,15 @@ def amongo(daba, film, filt={}):
 		if 'api' in daba.full_name:
 			filt = {'nameEs': film['nameEs']}
 		else:
-			filt = {'titulo': film['titulo']}
+			filt = {'titulo': film['titulo'],'year': film['year']}
 
 	try:
-		post = daba.update_one(filt, {'$set' : film}, upsert=True)
+		daba.update_one(filt, {'$set' : film}, upsert=True)
 
 	except:
-		post = daba.insert_one(film)
-	return post
+
+		daba.insert_one(film)
+		log(f'Error insertando {film}')
 
 
 #########################
