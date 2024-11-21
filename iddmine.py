@@ -60,7 +60,7 @@ def amongo(daba, film, filt={}):
 		if 'api' in daba.full_name:
 			filt = {'nameEs': film['nameEs']}
 		else:
-			filt = {'titulo': film['titulo'],'year': film['year']}
+			filt = {'titulo': film['titulo'],'year': film['year'],'categoria': film['categoria']}
 
 	try:
 		daba.update_one(filt, {'$set' : film}, upsert=True)
@@ -69,6 +69,7 @@ def amongo(daba, film, filt={}):
 
 		daba.insert_one(film)
 		log(f'Error insertando {film}')
+
 
 #################################################################################
 ## Esta función realiza la primera conexión a la página y extrae las categorías #
@@ -160,7 +161,7 @@ def pelis_ingesta(url="https://www.blogdepelis.top/"):
 
 								'titulo': nombre[:c],
 								'year': int(nombre[b:a]),
-								'categorize': catgry,
+								'categoria': catgry,
 								'like': int(emo[0]),
 								'dislike': int(emo[1]),
 								'love': int(emo[2]),
