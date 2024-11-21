@@ -14,6 +14,7 @@ def juntar(lista):
 		tmp+=item +" "
 	while tmp[-1] == ' ':
 		tmp=tmp[0:-2]
+	tmp.replace('  ',': ')
 	return tmp
 
 def log(message):
@@ -156,7 +157,7 @@ def pelis_ingesta(url="https://www.blogdepelis.top/"):
 							while len(tya) < 3:
 								tya.append('')
 
-							titulo = juntar(tya[0:-2]).replace('  ',': ')
+							titulo = juntar(tya[0:-2])
 							year = tya[-2].split()[0] if tya[-2] != '' else tya[-2].split()
 							age = tya[-1]
 
