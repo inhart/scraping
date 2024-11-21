@@ -3,11 +3,16 @@ import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
 import time
-
+import re
 
 ###################################
 #Funcion para estructurar el log  #
 ###################################
+def juntar(lista):
+	tmp=''
+	for item in lista:
+		tmp+=item
+	return tmp
 
 def log(message):
 	with open('log.txt', 'a') as f:
@@ -144,23 +149,21 @@ def pelis_ingesta(url="https://www.blogdepelis.top/"):
 								sinopsis = scr.get_text()
 							else:
 								sinopsis = scr[-1].get_text().split('\n')[0]
-							if '(+18)' in nombre:
-								a = -7
-								b = -11
-								c = -13
-								age = True
-							else:
-								a = -1
-								b = -5
-								c = -7
-								age = False
+
+							tya = re.split('[\(?:*)]',nombre),0,0
+							while len(tya) < 3:
+								tya.append('')
+
+							titulo = tya[0]
+							year = tya[1]
+							age = tya[2]
+
 							for cant in emo:
 								nv = int(str(cant).replace('k','000').replace('.',''))
 								emo[emo.index(cant)-1]=nv
 							film = {
-
-								'titulo': nombre[:c],
-								'year': int(nombre[b:a]),
+								'titulo': titulo,
+								'year': year,
 								'categoria': catgry,
 								'like': int(emo[0]),
 								'dislike': int(emo[1]),
@@ -168,7 +171,7 @@ def pelis_ingesta(url="https://www.blogdepelis.top/"):
 								'shit': int(emo[3]),
 								'vTotal':int(emo[0])+int(emo[1])+int(emo[2])+int(emo[3]),
 								'link': link2,
-								'pegi': age,
+								'pegi': False if age == '' else True,
 								'sinopsis': sinopsis
 							}
 							#######################
@@ -289,15 +292,20 @@ def mongo(host='localhost', port=27017):
 	api = db['api']
 	return mg, blog, api
 
+def exit_program():
+	print("Exiting the program...")
+	mg.close()
+	exit(0)
 
-def main(mc):
+def main():
 	########################
 	# comienza el proceso  #
 	########################
 	url = "https://www.blogdepelis.top/"
 	api_ingesta()
 	pelis_ingesta(url)
-	mc.close()
+	print("Programa Finalizado Correctamente")
+	exit_program()
 
 if __name__ == '__main__':
 	#################################################
@@ -317,5 +325,5 @@ if __name__ == '__main__':
 	# Empieza la magia (¿No es irónico que empiece al final? :)#
 	############################################################
 
-	main(mg)
-	print("Programa Finalizado Correctamente")
+	main()
+
