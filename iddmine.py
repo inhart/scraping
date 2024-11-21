@@ -155,11 +155,11 @@ def correpag(lin, cat):
 		if len(threads)<10:
 			threads.append(x)
 			x.start()
-			print(len(threads))
+			#print(len(threads))
 		else:
 			for i in range(10):
 				threads[i].join()
-				print(len(threads))
+				#print(len(threads))
 
 
 		#correpeli(link, nombre, cat)
