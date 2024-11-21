@@ -237,7 +237,7 @@ def cleanitem(item):
 		precio = 0.0
 	finally:
 		item['priceEs'] = float(precio)
-		return item
+	return item
 
 def apide(b_url, opt):
 	response = peticion(b_url, params=opt)
