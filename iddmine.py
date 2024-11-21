@@ -14,7 +14,7 @@ def juntar(lista):
 		tmp+=item +" "
 	while tmp[-1] == ' ':
 		tmp=tmp[0:-2]
-	tmp.replace('  ',': ')
+	tmp = tmp.replace('  ',': ')
 	return tmp
 
 def log(message):
