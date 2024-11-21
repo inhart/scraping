@@ -158,7 +158,7 @@ def pelis_ingesta(url="https://www.blogdepelis.top/"):
 								tya.append('')
 
 							titulo = juntar(tya[0:-2])
-							year = tya[-2].split()[0] if tya[-2] != '' else tya[-2].split()
+							year = tya[-2].split()[0] if tya[-2] != '' else tya[-2]
 							age = tya[-1]
 
 							for cant in emo:
@@ -166,7 +166,7 @@ def pelis_ingesta(url="https://www.blogdepelis.top/"):
 								emo[emo.index(cant)-1]=nv
 							film = {
 								'titulo': titulo,
-								'year': int(year) if year != '' else 2004,
+								'year': int(year) if str(year) != '' else 2004,
 								'categoria': catgry,
 								'like': int(emo[0]),
 								'dislike': int(emo[1]),
@@ -181,6 +181,7 @@ def pelis_ingesta(url="https://www.blogdepelis.top/"):
 							# Insertamos en mongo #
 							#######################
 							amongo(db_blog, film)
+							print(db_blog.count_documents({}))
 
 
 #####################################################
@@ -262,6 +263,7 @@ def api_ingesta():
 				# insertamos en la base de datos  #
 				###################################
 				amongo(api_db, item)
+
 
 def mongo(host='localhost', port=27017):
 	#####################################################################################
