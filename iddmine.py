@@ -304,10 +304,10 @@ def main():
 	# comienza el proceso  #
 	########################
 	url = "https://www.blogdepelis.top/"
-
+	api_ingesta()
 	pelis_ingesta(url)
 
-	api_ingesta()
+
 
 	print("Programa Finalizado Correctamente")
 	exit_program()
