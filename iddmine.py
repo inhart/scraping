@@ -177,7 +177,7 @@ def pelis_ingesta(url="https://www.blogdepelis.top/"):
 							###########################
 							# contador incrementar    #
 							###########################
-							incr()
+
 
 
 #####################################################
@@ -259,8 +259,6 @@ def api_ingesta():
 				# insertamos en la base de datos  #
 				###################################
 				amongo(api_db, item)
-				apide()
-			#incrementamos el contador
 
 def mongo(host='localhost', port=27017):
 	#####################################################################################
