@@ -6,9 +6,9 @@ import time
 import re
 import threading
 
-###################################
-#Funcion para estructurar el log  #
-###################################
+#############################################
+#Funcion para unir en una cadena una lista  #
+#############################################
 def juntar(lista):
 	tmp=''
 	for item in lista:
@@ -17,7 +17,9 @@ def juntar(lista):
 		tmp=tmp[0:-2]
 	tmp = tmp.replace('  ',': ')
 	return tmp
-
+###################################
+#Funcion para estructurar el log  #
+###################################
 def log(message):
 	with open('log.txt', 'a') as f:
 		try:
@@ -69,8 +71,10 @@ def amongo(daba, film, filt={}):
 		if 'api' in daba.full_name:
 			filt = {'nameEs': film['nameEs'], 'startDate': film['startDate']}
 		else:
-			filt = {'titulo': film['titulo'], 'year': film['year'], 'categoria': film['categoria']}
-
+			filt = {'titulo': film['titulo'], 'year': film['year']}
+	################################################################
+	# con esta funcion nos aseguramos de no introducir duplicados  #
+	################################################################
 	up = daba.update_one(filt, {'$set': film}, upsert=True)
 
 	ok = int(up.raw_result['ok'])
@@ -155,9 +159,6 @@ def correpag(lin, cat):
 		threads.append(x)
 		x.start()
 
-		print('a')
-
-
 		if threading.active_count() >= 1000:
 			for thread in threads:
 				if thread.is_alive() == 1:
@@ -193,27 +194,29 @@ def correcat(lin, cat_l):
 #################################################################################
 def pelis_ingesta(url="https://www.blogdepelis.top/"):
 	response = peticion(url)
-	if response is not None:
-		soup = BeautifulSoup(response.content, feat)
-		##########################################
-		# extraemos las categorías de la sopa    #
-		##########################################
-		cat = soup.find_all('a')
+	if response is None:
+		return
+	soup = BeautifulSoup(response.content, feat)
+	##########################################
+	# extraemos las categorías de la sopa    #
+	##########################################
+	cat = soup.find_all('a')
 
-		#############################
-		# recorremos las categorías #
-		#############################################################################################
-		# como los links de categoría salen varias veces nos aseguramos de recorrerlas solo una vez #
-		#############################################################################################
-		cat_list = []
-		for cate in cat:
-			if ("category" in cate['href']) and (cate.get_text() not in cat_list):
-				cat_list.append(cate.get_text())
-				###############################
-				# Este link es una categoria  #
-				###############################
-				newlink = cate['href']
-				correcat(newlink, cate)
+	#############################
+	# recorremos las categorías #
+	#############################################################################################
+	# como los links de categoría salen varias veces nos aseguramos de recorrerlas solo una vez #
+	#############################################################################################
+	cat_list = []
+	for cate in cat:
+		if ("category" in cate['href']) and (cate.get_text() not in cat_list):
+			cat_list.append(cate.get_text())
+			###############################
+			# Este link es una categoria  #
+			###############################
+			newlink = cate['href']
+			correcat(newlink, cate)
+
 
 def cleanitem(item):
 	############################################
