@@ -182,7 +182,7 @@ def correcat(lin, cat_l):
 	#######################
 	# Y las recorremos    #
 	#######################
-	for i in range(1, pagen):
+	for i in range(1, pagen+1):
 		#####################################
 		# Para cada página en la categoría  #
 		#####################################
