@@ -1,175 +1,175 @@
+# Descripción General
 
+Este programa realiza web scraping de un sitio web de películas y una API relacionada con eventos culturales, procesando la información extraída y almacenándola en una base de datos MongoDB. Incluye manejo de errores, soporte para múltiples hilos, y optimización mediante técnicas como "exponential backoff" en las peticiones.
+Estructura del Programa
 
+## Funciones Utilitarias
 
+#### juntar: 
+Combina elementos de una lista en una cadena estructurada.
+    
+#### log: 
+Registra mensajes en un archivo log.txt para rastrear errores o actividades del programa.
 
+### Manejo de Peticiones HTTP
+#### peticion:
+Realiza solicitudes HTTP con soporte para reintentos automáticos usando una estrategia de exponential backoff.
 
-# Ingesta de datos
+## Interacción con MongoDB
+### amongo: 
+Inserta datos en MongoDB evitando duplicados.
+### mongo: 
+Configura y conecta a la base de datos MongoDB.
 
-### Descripción General
+## Extracción de Datos
+### correpeli: 
+Extrae información detallada sobre una película desde su página específica.
+### correpag: 
+Procesa todas las películas en una página de una categoría.
+### correcat: 
+Procesa todas las páginas de una categoría específica.
+### pelis_ingesta: 
+Inicia el proceso de extracción desde el sitio web de películas.
+### apide y api_ingesta: 
+Procesan datos obtenidos desde la API de eventos culturales.
 
-El proyecto se centra en la ingesta y procesamiento de datos de 
-	películas y eventos culturales a través de scraping web y llamadas 
-	a APIs. El objetivo es recolectar información de diferentes fuentes 
-	y almacenarla en una base de datos MongoDB para facilitar su 
-	posterior análisis y consulta. El sistema está diseñado para interactuar 
-	con dos fuentes principales:
+## Transformación de Datos
+### cleanitem: 
+Limpia y normaliza los datos extraídos para garantizar consistencia antes de almacenarlos.
 
+## Programa Principal
+### main: 
+Punto de entrada principal que coordina el flujo de extracción, transformación y almacenamiento de datos.
 
-1. Un blog de películas (scraping web).
+### Documentación de Funciones
+#### 1. juntar(lista)
 
-2. Una API pública que proporciona información sobre eventos 
-audiovisuales y cinematográficos. El código está organizado para 
-ejecutar estos procesos de ingesta y almacenarlos en dos 
-colecciones separadas dentro de MongoDB: 'blog' y 'api'.
+Une los elementos de una lista en una cadena separada por espacios, reemplazando dobles espacios por ": ".
 
-### Requisitos Previos
+Parámetros:
+	lista (list): Lista de cadenas.
+Retorno: Una cadena formateada.
 
+#### 2. log(message)
 
-- Python 3.x: El proyecto está desarrollado en Python, por lo que se requiere
-	una versión moderna del lenguaje.
-- MongoDB: El sistema debe tener un servidor MongoDB 
-corriendo en 'localhost' en el puerto '27017'.
-- Bibliotecas Python: Las dependencias necesarias se 
-encuentran en el archivo ‘requirements.txt’.
-  	
+Registra mensajes en un archivo de log (log.txt).
 
-### Estructura del Proyecto
-	
-- ’iddmine.py’: Archivo principal que contiene el código para 
-	la ingesta de datos.
-	
-- 'log.txt’: Archivo de log donde se registran errores y eventos durante 
-la ejecución del programa.
-	
-### Base de Datos MongoDB
+Parámetros:
+	message (str): Mensaje a registrar.
 
-El proyecto utiliza una base de datos MongoDB llamada 'IDD' con 
-	dos colecciones principales:
-  
-- 'blog': Para almacenar la información de películas obtenida 
-	mediante scraping web.
+### 3. peticion(url, params=None, max_retries=5, base_wait_time=10)
 
-- 'api': Para almacenar la información de eventos audiovisuales 
-	obtenida desde la API.
+Realiza una solicitud HTTP con reintentos automáticos en caso de error.
 
-### Detalles de Implementación
+Parámetros:
+	url (str): URL objetivo.
+	params (dict, opcional): Parámetros de la solicitud.
+	max_retries (int): Máximo número de reintentos.
+	base_wait_time (int): Tiempo base en segundos para "exponential backoff".
+Retorno: Objeto Response de la solicitud o None si falla.
 
+### 4. amongo(daba, film, filt={})
 
-#### MongoDB:
+Inserta o actualiza un documento en MongoDB evitando duplicados.
 
-El proyecto utiliza MongoDB para almacenar los datos recolectados. 
-	Se conecta a un servidor MongoDB local en 'localhost:27017'.
-	
+Parámetros:
+	daba (MongoDB Collection): Colección donde insertar.
+	film (dict): Documento a insertar.
+	filt (dict, opcional): Filtro para evitar duplicados.
 
-#### Librerías utilizadas:
+### 5. correpeli(lin, nombre, cat)
 
-##### - 'requests':
+Extrae datos de una película desde su página y los inserta en MongoDB.
 
-Para realizar peticiones HTTP tanto en el scraping web como
-en las llamadas a la API.
+Parámetros:
+	lin (str): URL de la película.
+	nombre (str): Título de la película.
+	cat (str): Categoría de la película.
 
-##### - 'BeautifulSoup':
+### 6. correpag(lin, cat)
 
-Para parsear y extraer datos de las páginas HTML durante el scraping.
+Procesa todas las películas en una página específica de una categoría.
 
-##### - 'pymongo':
+Parámetros:
+	lin (str): URL de la página.
+	cat (str): Categoría de las películas.
 
-Para la interacción con MongoDB.
+### 7. correcat(lin, cat_l)
 
-##### -'datetime':
+Recorre todas las páginas de una categoría específica y procesa sus películas.
 
-Para registrar fechas y horas en los logs.
+Parámetros:
+	lin (str): URL de la categoría.
+	cat_l (BeautifulSoup Tag): Elemento HTML que contiene el nombre de la categoría.
 
-	
-### Funcionalidades y Estructura del Código
+### 8. pelis_ingesta(url="https://www.blogdepelis.top/")
 
+Inicia la extracción de datos desde el sitio web principal.
 
-##### 1. peticion(url, params=None, max_retries=3, base_wait_time=2):
+Parámetros:
+	url (str, opcional): URL del sitio web.
 
-Realiza una solicitud 'GET' a la URL especificada.
-	- Si la respuesta es exitosa ('status_code = 200'), retorna el contenido; 
-	de lo contrario, se registra el error en el archivo 'log.txt'. y 
-	tras tres reintentos separados por un retraso exponencial
-	se devuelve None.
+### 9. cleanitem(item)
 
-##### - 2. log(message):
+Limpia y normaliza datos extraídos de la API.
 
-- Escribe mensajes de log en el archivo 'log.txt' para documentar errores
-	y eventos.
+Parámetros:
+	item (dict): Documento extraído de la API.
+Retorno: Documento limpio y normalizado.
 
-##### 3. amongo(daba, film):
+### 10. apide(b_url, opt)
 
-- Inserta un documento ('film') en la colección MongoDB 
-	especificada ('daba').
+Procesa datos obtenidos de la API.
 
+Parámetros:
+	b_url (str): URL base de la API.
+	opt (dict): Parámetros para la solicitud.
 
+### 11. api_ingesta(b_url="https://api.euskadi.eus/culture/events/v1.0/events/", opt={'_page': 1})
 
-##### 4. pelis_ingesta()
+Inicia la extracción desde la API.
 
-- Realiza la conexión inicial con la página principal del blog 
-	para extraer las categorías de películas disponibles para navegar y extraer
-	los datos de cada categoría.   
-	- Realiza scraping de una página de película específica 
-	para extraer datos como el título, año, categoría, reacciones 
-	(likes, dislikes, etc.), sinopsis y enlace.
-	- Navega por todas las páginas de una categoría específica 
-	del blog de películas y extrae la información de cada película.
-	- Inserta los datos extraídos en la colección 'blog'.
+Parámetros:
+	b_url (str, opcional): URL base de la API.
+	opt (dict, opcional): Parámetros iniciales.
 
-##### 5. api_ingesta():
+### 12. mongo(host='localhost', port=27017)
 
-- Realiza solicitudes a la API de eventos culturales y almacena
-	la información en la colección 'api' de MongoDB.
-	- Extrae información como el tipo de evento y el total de 
-	páginas, y recorre cada evento para almacenarlo en la base de datos.
+Conecta a MongoDB y configura las colecciones.
 
-##### 6. limpiar_coleccion(elem):
+Parámetros:
+	host (str, opcional): Dirección del servidor MongoDB.
+	port (int, opcional): Puerto del servidor MongoDB.
+Retorno: Cliente MongoDB, colección de películas (db_blog), colección de API (api_db).
 
-- Identifica duplicados en la colección especificada y los combina en un solo elemento, uniendo las categorías y consolidando los datos en un documento único. Al final, guarda los elementos resultantes en la colección 'blog'.
+### 13. main()
 
-##### 7. main():
+Controla el flujo principal del programa.
+Tecnologías Utilizadas
 
-- Función principal que inicia el proceso de ingesta de datos 
-	y limpieza de la base de datos.
+Python Librerías Principales:
+	requests: Para peticiones HTTP.
+	BeautifulSoup: Para analizar HTML.
+	threading: Para procesamiento concurrente.
+	pymongo: Para interactuar con MongoDB.
 
+## MongoDB:
+Base de datos NoSQL para almacenamiento.
 
-### Ejecución del Proyecto
+## Consideraciones de Diseño
 
-Para ejecutar el proyecto, sigue los siguientes pasos:
+### Resiliencia:
+Manejo de errores HTTP con reintentos automáticos.
+Registro de errores en un archivo de log.
 
-#### 1. Instalación de dependencias:
+### Optimización:
+Evita duplicados en MongoDB.
+Limpieza y normalización de datos antes de su almacenamiento.
 
-   `pip install -r requirements.txt`
+### Modularidad:
+Funciones independientes que facilitan su reutilización y mantenimiento.
 
-#### 2. Ejecución del código:
-  
-   `python iddmine.py`
-   
-Alternativamente, el archivo puede ejecutarse desde un editor 
-	de Python compatible.
+## Mejoras Posibles
 
-
-### Recursividad y Manejo de Errores
-  	
-- El límite de recursividad se incrementa considerablemente
-	para manejar las operaciones masivas y las peticiones múltiples.
-  	
-- El sistema de logging registra cualquier error 
-	en 'log.txt' para facilitar la depuración.
-
-### Posibles Mejoras
-
-- Recorrer el log de errores y revisar los links que han dado error
-	para intentar recuperar esa informacion.
-
-### Conclusión
-
-Este proyecto de ingesta de datos es una herramienta 
-	potente para recolectar y centralizar 
-	información de diferentes fuentes en MongoDB. 
-	El código está diseñado para ser modular y escalable, 
-	facilitando la integración de nuevas fuentes de datos y 
-	la mejora de las funcionalidades existentes.
-
-
-    	
+Implementar un sistema de cacheo para evitar repetir solicitudes HTTP.
+Usar librerías asincrónicas como asyncio o aiohttp para manejar peticiones de manera más eficiente.

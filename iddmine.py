@@ -143,6 +143,7 @@ def correpag(lin, cat):
 	###################################################
 	# recorre las todas las páginas de la categoría   #
 	###################################################
+	#Creamos una lista que contendra nuestros hilos
 	threads = list()
 	response = peticion(lin)
 	soup3 = BeautifulSoup(response.content, feat)
@@ -155,6 +156,7 @@ def correpag(lin, cat):
 		####################################
 		nombre = a.find('a')['title']
 		link = a.find('a')['href']
+		#creamos un hilo por pelicula y continuamos
 		x = threading.Thread(target=correpeli, args=(link, nombre, cat,))
 		threads.append(x)
 		x.start()
