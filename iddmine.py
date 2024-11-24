@@ -182,7 +182,7 @@ def correcat(lin, cat_l):
 	#######################
 	# Y las recorremos    #
 	#######################
-	for i in range(1, pagen + 1):
+	for i in range(1, pagen):
 		#####################################
 		# Para cada página en la categoría  #
 		#####################################
@@ -276,6 +276,7 @@ def apide(b_url, opt):
 		# insertamos en la base de datos  #
 		###################################
 		amongo(api_db, item)
+		print("1 "+ item['nameEs'])
 
 
 
