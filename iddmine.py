@@ -161,10 +161,9 @@ def correpag(lin, cat):
 		threads.append(x)
 		x.start()
 
-		if threading.active_count() >= 1000:
+		if len(threads) >= 1000:
 			for thread in threads:
-				if thread.is_alive() == 1:
-					thread.join()
+				thread.join()
 		#correpeli(link, nombre, cat)
 
 # print(db_blog.count_documents({}))
@@ -175,10 +174,7 @@ def correcat(lin, cat_l):
 	# extraemos la cantidad de páginas que tiene cada categoría    #
 	################################################################
 	pagen = soup.find_all('a', 'page-numbers')
-	if len(pagen) >=2:
-		pagen = int(pagen[-2].get_text())
-	else:
-		pagen = 2
+	pagen = int(pagen[-2].get_text())
 	#######################
 	# Y las recorremos    #
 	#######################
