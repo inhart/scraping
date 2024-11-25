@@ -144,7 +144,7 @@ def correpag(lin, cat):
 	# recorre las todas las páginas de la categoría   #
 	###################################################
 	#Creamos una lista que contendra nuestros hilos
-	threads = list()
+	threads = []
 	response = peticion(lin)
 	soup3 = BeautifulSoup(response.content, feat)
 	ases = soup3.find_all('div', 'latestPost-inner')
@@ -161,7 +161,7 @@ def correpag(lin, cat):
 		threads.append(x)
 		x.start()
 
-		if len(threads) >= 1000:
+		if len(threads) >= 100:
 			for thread in threads:
 				thread.join()
 		#correpeli(link, nombre, cat)
@@ -174,7 +174,10 @@ def correcat(lin, cat_l):
 	# extraemos la cantidad de páginas que tiene cada categoría    #
 	################################################################
 	pagen = soup.find_all('a', 'page-numbers')
-	pagen = int(pagen[-2].get_text())
+	try:
+		pagen = int(pagen[-2].get_text())
+	except:
+		pagen = 2
 	#######################
 	# Y las recorremos    #
 	#######################
@@ -191,6 +194,7 @@ def correcat(lin, cat_l):
 ## Esta función realiza la primera conexión a la página y extrae las categorías #
 #################################################################################
 def pelis_ingesta(url="https://www.blogdepelis.top/"):
+
 	response = peticion(url)
 	if response is None:
 		return
