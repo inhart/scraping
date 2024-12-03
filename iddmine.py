@@ -84,7 +84,6 @@ def amongo(daba, film, filt={}):
 		daba.insert_one(film)
 		log(f'Error insertando {film}')
 
-
 def correpeli(lin, nombre, cat):
 	#################################################################
 	# Esta función recorre la página de la peli y extrae los datos  #
@@ -108,7 +107,7 @@ def correpeli(lin, nombre, cat):
 	else:
 		sinopsis = scr[-1].get_text().split('\n')[0]
 
-	tya = re.split('[\(:*)]', nombre)
+	tya = re.split('[(:*)]', nombre)
 	while len(tya) < 3:
 		tya.append('')
 
@@ -135,6 +134,7 @@ def correpeli(lin, nombre, cat):
 	#######################
 	# Insertamos en mongo #
 	#######################
+	
 	amongo(db_blog, film)
 	print('1 ' + titulo)
 
@@ -157,13 +157,17 @@ def correpag(lin, cat):
 		nombre = a.find('a')['title']
 		link = a.find('a')['href']
 		#creamos un hilo por pelicula y continuamos
-		x = threading.Thread(target=correpeli, args=(link, nombre, cat,))
+		x = threading.Thread(target=correpeli, args=(link, nombre, cat,), daemon=True)
+
 		threads.append(x)
 		x.start()
 
 		if len(threads) >= 100:
 			for thread in threads:
-				thread.join()
+				if thread.is_alive():
+					thread.join()
+				else:
+					threads.remove(thread)
 		#correpeli(link, nombre, cat)
 
 # print(db_blog.count_documents({}))
@@ -218,7 +222,46 @@ def pelis_ingesta(url="https://www.blogdepelis.top/"):
 			###############################
 			newlink = cate['href']
 			correcat(newlink, cate)
-
+	db_blog.aggregate([
+    {
+        '$group': {
+            '_id': {
+                'titulo': '$titulo', 
+                'year': '$year', 
+                'shit': '$shit', 
+                'dislike': '$dislike', 
+                'like': '$like', 
+                'love': '$love', 
+                'sinopsis': '$sinopsis', 
+                'pegi': '$pegi', 
+                'vTotal': '$vTotal'
+            }, 
+            'categorias': {
+                '$addToSet': '$categoria'
+            }
+        }
+    }, {
+        '$project': {
+            '_id': 0, 
+            'titulo': '$_id.titulo', 
+            'year': '$_id.year', 
+            'shit': '$_id.shit', 
+            'dislike': '$_id.dislike', 
+            'like': '$_id.like', 
+            'love': '$_id.love', 
+            'sinopsis': '$_id.sinopsis', 
+            'pegi': '$_id.pegi', 
+            'vTotal': '$_id.vTotal', 
+            'categoria': '$categorias'
+        }
+    }, {
+        '$merge': {
+            'into': 'blog_retocado', 
+            'whenMatched': 'replace', 
+            'whenNotMatched': 'insert'
+        }
+    }
+])
 
 def cleanitem(item):
 	############################################
@@ -372,7 +415,7 @@ if __name__ == '__main__':
 	#################################################
 
 	i,f = 0 , 0
-
+	
 	feat = 'html.parser'
 	first = '$first'
 	mg, db_blog, api_db = mongo()
