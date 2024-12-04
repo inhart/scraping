@@ -222,6 +222,10 @@ def pelis_ingesta(url="https://www.blogdepelis.top/"):
 			###############################
 			newlink = cate['href']
 			correcat(newlink, cate)
+	#########################################################
+	# Aggregacion que limpia la base de datos de duplicados #
+	# unificando las peliculas con varias categorias		#
+	#########################################################
 	db_blog.aggregate([
     {
         '$group': {
