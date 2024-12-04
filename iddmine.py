@@ -71,7 +71,7 @@ def amongo(daba, film, filt={}):
 		if 'api' in daba.full_name:
 			filt = {'nameEs': film['nameEs'], 'startDate': film['startDate']}
 		else:
-			filt = {'titulo': film['titulo'], 'year': film['year']}
+			filt = {'titulo': film['titulo'], 'year': film['year'], 'categoria': film['categoria']}
 	################################################################
 	# con esta funcion nos aseguramos de no introducir duplicados  #
 	################################################################
