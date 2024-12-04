@@ -84,6 +84,48 @@ def amongo(daba, film, filt={}):
 		daba.insert_one(film)
 		log(f'Error insertando {film}')
 
+def aggregate():
+	db_blog.aggregate([
+		{
+			'$group': { #Agrupa portodo menos categoria,
+				'_id': {
+					'titulo': '$titulo',
+					'year': '$year',
+					'shit': '$shit',
+					'dislike': '$dislike',
+					'like': '$like',
+					'love': '$love',
+					'sinopsis': '$sinopsis',
+					'pegi': '$pegi',
+					'vTotal': '$vTotal'
+				},#las categorias iran encadenandose en un array
+				'categorias': {
+					'$addToSet': '$categoria'
+				}
+			}
+		}, { # saca la coleccion sin duplicados
+			'$project': {
+				'_id': 0,
+				'titulo': '$_id.titulo',
+				'year': '$_id.year',
+				'shit': '$_id.shit',
+				'dislike': '$_id.dislike',
+				'like': '$_id.like',
+				'love': '$_id.love',
+				'sinopsis': '$_id.sinopsis',
+				'pegi': '$_id.pegi',
+				'vTotal': '$_id.vTotal',
+				'categoria': '$categorias'
+			}
+		}, {#lo guarda en una nueva coleccion
+			'$merge': {
+				'into': 'blog_retocado',
+				'whenMatched': 'replace',
+				'whenNotMatched': 'insert'
+			}
+		}
+	])
+
 def correpeli(lin, nombre, cat):
 	#################################################################
 	# Esta función recorre la página de la peli y extrae los datos  #
@@ -222,46 +264,11 @@ def pelis_ingesta(url="https://www.blogdepelis.top/"):
 			###############################
 			newlink = cate['href']
 			correcat(newlink, cate)
-	db_blog.aggregate([
-    {
-        '$group': {
-            '_id': {
-                'titulo': '$titulo', 
-                'year': '$year', 
-                'shit': '$shit', 
-                'dislike': '$dislike', 
-                'like': '$like', 
-                'love': '$love', 
-                'sinopsis': '$sinopsis', 
-                'pegi': '$pegi', 
-                'vTotal': '$vTotal'
-            }, 
-            'categorias': {
-                '$addToSet': '$categoria'
-            }
-        }
-    }, {
-        '$project': {
-            '_id': 0, 
-            'titulo': '$_id.titulo', 
-            'year': '$_id.year', 
-            'shit': '$_id.shit', 
-            'dislike': '$_id.dislike', 
-            'like': '$_id.like', 
-            'love': '$_id.love', 
-            'sinopsis': '$_id.sinopsis', 
-            'pegi': '$_id.pegi', 
-            'vTotal': '$_id.vTotal', 
-            'categoria': '$categorias'
-        }
-    }, {
-        '$merge': {
-            'into': 'blog_retocado', 
-            'whenMatched': 'replace', 
-            'whenNotMatched': 'insert'
-        }
-    }
-])
+	#########################################################
+	# Aggregacion que limpia la base de datos de duplicados #
+	# unificando las peliculas con varias categorias		#
+	#########################################################
+	aggregate()
 
 def cleanitem(item):
 	############################################
