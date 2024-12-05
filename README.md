@@ -36,6 +36,8 @@ Procesan datos obtenidos desde la API de eventos culturales.
 ## Transformación de Datos
 ### cleanitem: 
 Limpia y normaliza los datos extraídos para garantizar consistencia antes de almacenarlos.
+### aggregate:
+Limpia la colección blog y saca el resultado en la colección blog_retocado
 
 ## Programa Principal
 ### main: 
