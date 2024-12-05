@@ -128,7 +128,7 @@ def aggregate():
 
 def correpeli(lin, nombre, cat):
 	#################################################################
-	# Esta función recorre la página de la peli y extrae los datos  #
+	# Esta funcion recorre la página de la peli y extrae los datos  #
 	#################################################################
 	peli = peticion(lin)
 	if peli is None:
@@ -141,7 +141,7 @@ def correpeli(lin, nombre, cat):
 		num = num.get_text()
 		emo.append(num)
 	#############################################
-	# adaptación a la variabilidad de la pagina #
+	# adaptacion a la variabilidad de la pagina #
 	#############################################
 	if len(scr) == 0:
 		scr = soup4.find_all('p')[1]
@@ -183,9 +183,10 @@ def correpeli(lin, nombre, cat):
 
 def correpag(lin, cat):
 	###################################################
-	# recorre las todas las páginas de la categoría   #
+	# recorre las todas las paginas de la categoría   #
 	###################################################
-	#Creamos una lista que contendra nuestros hilos
+	#Creamos una lista que contendra nuestros hilos   #
+	###################################################
 	threads = []
 	response = peticion(lin)
 	soup3 = BeautifulSoup(response.content, feat)
@@ -194,7 +195,7 @@ def correpag(lin, cat):
 	for a in ases:
 
 		####################################
-		# Para cada película de la página  #
+		# Para cada película de la pagina  #
 		####################################
 		nombre = a.find('a')['title']
 		link = a.find('a')['href']
@@ -229,7 +230,7 @@ def correcat(lin, cat_l):
 	#######################
 	for i in range(1, pagen+1):
 		#####################################
-		# Para cada página en la categoría  #
+		# Para cada pagina en la categoría  #
 		#####################################
 		link1 = f'{lin}/page/{i}'
 		catgry = cat_l.get_text()
@@ -356,7 +357,7 @@ def api_ingesta(b_url = "https://api.euskadi.eus/culture/events/v1.0/events/",op
 		'_elements': ele,
 		'_page': 1,
 		###########################################
-		# tipo de evento "9 Audiovisuales y Cine" #
+		# tipo de evento "todos" #
 		###########################################
 
 	}
@@ -382,9 +383,9 @@ def mongo(host='localhost', port=27017):
 
 	###################################################################
 	#  IDD (Base de datos)---'blog' (Colección)						  #
-	#	|															  #
-	#	|															  #
-	#'api' (Colección)												  #
+	#	|						|									  #
+	#	|						|									  #
+	#'api' (Colección)			blog_retocado									  #
 	#																  #
 	# crea la base de datos y las dos colecciones que usaremos        #
 	###################################################################
@@ -417,8 +418,6 @@ def main():
 if __name__ == '__main__':
 	#################################################
 	#Inicializams las variables globales  			#
-	#sé que no hace falta inicializarlas en python, #
-	#es una práctica que conservo con cariño		#
 	#################################################
 
 	i,f = 0 , 0
