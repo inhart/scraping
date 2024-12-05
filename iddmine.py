@@ -222,7 +222,7 @@ def correcat(lin, cat_l):
 	pagen = soup.find_all('a', 'page-numbers')
 	try:
 		pagen = int(pagen[-2].get_text())
-	except:
+	except IndexError:
 		pagen = 2
 	#######################
 	# Y las recorremos    #
